@@ -56,6 +56,14 @@ class Individual:
         self.famc = None # Family where individual is a child
         self.fams = None # Family where individual is spouse
 
+    # def __init__(self, id):
+    #     self.fam = id
+    #     self.marriage = None  # marriage event for family
+    #     self.husband = None # pointer for husband in family
+    #     self.wife = None # pointer for wife in family
+    #     self.children = None # pointer for child in family
+    #     self.divorce = None # divorce event in family
+
 class Family:
     """Class for family"""
 
