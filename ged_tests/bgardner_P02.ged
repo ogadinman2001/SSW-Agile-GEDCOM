@@ -1,0 +1,169 @@
+0 NOTE Bryan Gardner
+0 HEAD
+1 SOUR Family Echo
+2 WWW http://www.familyecho.com/
+1 FILE My Family
+1 DATE 30 JAN 2016
+1 DEST ANSTFILE
+1 GEDC
+2 VERS 5.5.1
+2 FORM LINEAGE-LINKED
+1 SUBM @I1@
+2 NAME John Smith
+1 SUBN
+1 CHAR UTF-8
+0 @I1@ INDI
+1 NAME John /Smith/
+2 GIVN John
+2 SURN Smith
+2 _MARNM Smith
+1 SEX M
+1 BIRT
+2 DATE 9 MAR 1990
+1 FAMC @F1@
+0 @I2@ INDI
+1 NAME Robert /Smith/
+2 GIVN Robert
+2 SURN Smith
+2 _MARNM Smith
+1 SEX M
+1 BIRT
+2 DATE 5 OCT 1956
+1 FAMS @F1@
+1 FAMS @F2@
+1 FAMC @F3@
+0 @I3@ INDI
+1 NAME Sue /Williams/
+2 GIVN Sue
+2 SURN Williams
+2 _MARNM Smith
+1 SEX F
+1 BIRT
+2 DATE 7 MAY 1958
+1 DEAT Y
+2 DATE 6 JUN 1996
+1 FAMS @F1@
+1 FAMC @F4@
+0 @I4@ INDI
+1 NAME Anne /Johnson/
+2 GIVN Anne
+2 SURN Johnson
+2 _MARNM Smith
+1 SEX F
+1 BIRT
+2 DATE 4 JUL 1954
+1 FAMS @F2@
+1 FAMC @F5@
+0 @I5@ INDI
+1 NAME Erin /Smith/
+2 GIVN Erin
+2 SURN Smith
+2 _MARNM Smith
+1 SEX F
+1 BIRT
+2 DATE 8 MAY 1999
+1 FAMC @F2@
+0 @I6@ INDI
+1 NAME Patrick /Smith/
+2 GIVN Patrick
+2 SURN Smith
+2 _MARNM Smith
+1 SEX M
+1 BIRT
+2 DATE 14 JUN 1992
+1 FAMC @F1@
+0 @I7@ INDI
+1 NAME Edward /Smith/
+2 GIVN Edward
+2 SURN Smith
+2 _MARNM Smith
+1 SEX M
+1 BIRT
+2 DATE 9 JUL 1930
+1 FAMS @F3@
+0 @I8@ INDI
+1 NAME Carol /Miller/
+2 GIVN Carol
+2 SURN Miller
+2 _MARNM Smith
+1 SEX F
+1 BIRT
+2 DATE 13 MAY 1936
+1 DEAT Y
+2 DATE 14 JUL 2000
+1 FAMS @F3@
+0 @I9@ INDI
+1 NAME Joseph /Johnson/
+2 GIVN Joseph
+2 SURN Johnson
+2 _MARNM Johnson
+1 SEX M
+1 BIRT
+2 DATE 11 JUL 1940
+1 FAMS @F5@
+0 @I10@ INDI
+1 NAME Elizabeth /Davis/
+2 GIVN Elizabeth
+2 SURN Davis
+2 _MARNM Johnson
+1 SEX F
+1 BIRT
+2 DATE 12 MAY 1939
+1 FAMS @F5@
+0 @I11@ INDI
+1 NAME Steven /Williams/
+2 GIVN Steven
+2 SURN Williams
+2 _MARNM Williams
+1 SEX M
+1 BIRT
+2 DATE 5 OCT 1931
+1 FAMS @F4@
+0 @I12@ INDI
+1 NAME Nicole /Taylor/
+2 GIVN Nicole
+2 SURN Taylor
+2 _MARNM Williams
+1 SEX F
+1 BIRT
+2 DATE 4 AUG 1932
+1 DEAT Y
+2 DATE 7 APR 2009
+1 FAMS @F4@
+0 @I13@ INDI
+1 NAME Bryan /Smith/
+2 GIVN Bryan
+2 SURN Smith
+2 _MARNM Smith
+1 SEX M
+1 BIRT
+2 DATE 6 JUL 1997
+1 FAMC @F2@
+0 @F1@ FAM
+1 HUSB @I2@
+1 WIFE @I3@
+1 CHIL @I1@
+1 CHIL @I6@
+1 _CURRENT N
+0 @F2@ FAM
+1 HUSB @I2@
+1 WIFE @I4@
+1 CHIL @I5@
+1 CHIL @I13@
+1 _CURRENT Y
+0 @F3@ FAM
+1 HUSB @I7@
+1 WIFE @I8@
+1 CHIL @I2@
+1 _CURRENT Y
+0 @F4@ FAM
+1 HUSB @I11@
+1 WIFE @I12@
+1 CHIL @I3@
+1 _CURRENT Y
+0 @F5@ FAM
+1 HUSB @I9@
+1 WIFE @I10@
+1 CHIL @I4@
+1 _CURRENT Y
+0 TRLR
