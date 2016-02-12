@@ -56,19 +56,19 @@ class Individual:
         self.famc = None # Family where individual is a child
         self.fams = None # Family where individual is spouse
 
-    # def __init__(self, id):
-    #     self.fam = id
-    #     self.marriage = None  # marriage event for family
-    #     self.husband = None # pointer for husband in family
-    #     self.wife = None # pointer for wife in family
-    #     self.children = None # pointer for child in family
-    #     self.divorce = None # divorce event in family
+
 
 class Family:
     """Class for family"""
 
-    def __init__(self):
-        pass
+    def __init__(self, id):
+        self.id = id
+        self.marriage = None  # marriage event for family
+        self.husband = None # pointer for husband in family
+        self.wife = None # pointer for wife in family
+        self.child = None # pointer for child in family
+        self.divorce = None # divorce event in family
+
 
 def main():
     gedlist = []
@@ -88,14 +88,20 @@ def main():
         if (g.tag == 'INDI'):
             individuals.append(fill_individual(gedlist, i, g.xref))
         if (g.tag == 'FAM'):
-            pass
+            families.append(fill_family(gedlist, i, g.xref))
+
+    #@TODO: Gardner make it so these lists are sorted and then print them
+    # all pretty like. xoxo
 
     for indiv in individuals:
         print indiv.name, indiv.id
 
+    for family in families:
+        print family.id, family.husband
+
 def fill_individual(gedlist, index, xref):
     indiv = Individual(xref)
-    endNotFound = True
+
     date_type = None
     for i, g in enumerate(gedlist[index+1:]):
         if (g.level == 0):
@@ -126,38 +132,37 @@ def fill_individual(gedlist, index, xref):
 
     return indiv
 
-# def fill_family(gedlist, index, xref):
-#     family = Individual(xref)
-#     endNotFound = True
-#     date_type = None
-#     for i, g in enumerate(gedlist[index+1:]):
-#         if (g.level == 0):
-#             break
-#         if (g.tag == "NAME"):
-#             indiv.name = g.args
-#         if (g.tag == "SEX"):
-#             indiv.sex = g.args[0]
-#         if (g.tag == "BIRT"):
-#             date_type = "BIRT"
-#         if (g.tag == "DEAT"):
-#             date_type = "DEAT"
-#         if (g.tag == "FAMC"):
-#             indiv.famc = g.args[0]
-#         if (g.tag == "FAMS"):
-#             indiv.fams = g.args[0]
-#
-#         # This assumes the following date tag corresponds to prev tag
-#         if (g.tag == "DATE"):
-#             if (date_type=="BIRT"):
-#                 indiv.birthdate = g.args
-#                 date_type = None
-#             elif (date_type=="DEAT"):
-#                 indiv.death = g.args
-#                 date_type = None
-#             else:
-#                 print "ERROR"
-#
-#     return indiv
+def fill_family(gedlist, index, xref):
+    family = Family(xref)
+
+    date_type = None
+    for i, g in enumerate(gedlist[index+1:]):
+        if (g.level == 0):
+            break
+        if (g.tag == "MARR"):
+            date_type = "MARR"
+        if (g.tag == "DIV"):
+            date_type = "DIV"
+
+        if (g.tag == "HUSB"):
+            family.husband = g.args[0]
+        if (g.tag == "WIFE"):
+            family.wife = g.args[0]
+        if (g.tag == "CHIL"):
+            family.child = g.args[0]
+
+        # This assumes the following date tag corresponds to prev tag
+        if (g.tag == "DATE"):
+            if (date_type=="MARR"):
+                family.marrige = g.args
+                date_type = None
+            elif (date_type=="DIV"):
+                family.divorce = g.args
+                date_type = None
+            else:
+                print "ERROR"
+
+    return family
 
 
 if __name__ == '__main__':
