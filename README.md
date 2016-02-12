@@ -8,9 +8,11 @@ Stevens SSW 555 Agile Methods Course Git - For parsing of GEDCOM files
 
 
 ## Next Sprint Tasks
-US01	Dates before current date	mm
-US02	Birth before marriage	mm
-US03	Birth before death	bg
-US04	Marriage before divorce	bg
-US05	Marriage before death	rh
-US06	Divorce before death	rh
+| Story ID | Story Name                | Owner |
+|----------|---------------------------|-------|
+| US01     | Dates before current date | mm    |
+| US02     | Birth before marriage     | mm    |
+| US03     | Birth before death        | bg    |
+| US04     | Marriage before divorce   | bg    |
+| US05     | Marriage before death     | rh    |
+| US06     | Divorce before death      | rh    |
