@@ -10,8 +10,7 @@
 __author__ = "Rick Housley, Bryan Gardner Michael McCarthy"
 __email__ = "rhousley@stevens.edu, bgardne2@stevens.edu, mmcart1@stevens.edu"
 
-import operator
-import re
+import operator, re, sys, os
 
 FILENAME = 'default_ged.ged'
 
@@ -97,7 +96,13 @@ def main():
     individuals = []
     families = []
 
-    lines = [line.rstrip('\n\r') for line in open(FILENAME)]
+    # Allow for arg to be passed for filename
+    if len(sys.argv)>1:
+        path = sys.argv[1]
+        if os.path.exists(path):
+            lines = [line.rstrip('\n\r') for line in open(path)]
+    else:
+        lines = [line.rstrip('\n\r') for line in open(FILENAME)]
 
     for line in lines:
         current_ged = Gedline(line)
