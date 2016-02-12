@@ -1,3 +1,15 @@
+#!/usr/bin/env python
+""" Python module for parsing GEDCOM geneaology files
+
+    Currently reads in default_ged.ged from local directory, parses the file
+    into Individual and Familiy classes, and then prints the found Individuals
+    found in <ID Name> format followed by printing the families found in
+    <ID Husband Wife> format. These are printed in order of their IDs
+"""
+
+__author__ = "Rick Housley, Bryan Gardner Michael McCarthy"
+__email__ = "rhousley@stevens.edu, bgardne2@stevens.edu, mmcart1@stevens.edu"
+
 import operator
 import re
 
@@ -9,7 +21,7 @@ VALID_TAGS = ['INDI', 'NAME', 'SEX', 'BIRT', 'DEAT', 'FAMC', 'FAMS', 'FAM',
 
 
 class Gedline:
-    """Class for line of gedcom"""
+    """Class for a single line of a GEDCOM file"""
 
     def __init__(self, line):
         self.level = None
@@ -23,12 +35,12 @@ class Gedline:
 
         # Default tag format if level > 0
         # <level-number> <tag> <args>
-        if (self.level > 0):
+        if self.level > 0:
             self.tag = line_listified[1]
             self.args = line_listified[2:]
 
         # Check for non default formats
-        if (self.level == 0):
+        if self.level == 0:
             # <level-number> <tag> <ignorable args>
             if line_listified[1] in VALID_TAGS:
                 self.tag = line_listified[1]
@@ -44,18 +56,19 @@ class Gedline:
         return self.tag
 
     def check_if_valid(self):
-        if (self.tag in VALID_TAGS):
+        """ Checks if the tag parsed is a valid tag"""
+        if self.tag in VALID_TAGS:
             return True
         else:
             return False
 
 
 class Individual:
-    """Class for individual"""
+    """ Class for an individual """
 
-    def __init__(self, id):
-        self.id = id
-        self.int_id = int(re.search(r'\d+', id).group())
+    def __init__(self, uid):
+        self.uid = uid
+        self.int_id = int(re.search(r'\d+', uid).group())
         self.name = None  # Name of individual
         self.sex = None  # Sex of individual (M or F)
         self.birthdate = None  # Birth date of individual
@@ -65,11 +78,11 @@ class Individual:
 
 
 class Family:
-    """Class for family"""
+    """ Class for a family """
 
-    def __init__(self, id):
-        self.id = id
-        self.int_id = int(re.search(r'\d+', id).group())
+    def __init__(self, uid):
+        self.uid = uid
+        self.int_id = int(re.search(r'\d+', uid).group())
         self.marriage = None  # marriage event for family
         self.husband = None  # pointer for husband in family
         self.wife = None  # pointer for wife in family
@@ -78,24 +91,25 @@ class Family:
 
 
 def main():
+    """ Main function for parsing of GEDCOM"""
+
     gedlist = []
     individuals = []
     families = []
 
     lines = [line.rstrip('\n\r') for line in open(FILENAME)]
 
-    for l in lines:
-        # print l
-        current_ged = Gedline(l)
+    for line in lines:
+        current_ged = Gedline(line)
         gedlist.append(current_ged)
 
-    # Do invidual parsing
-    temp = None
-    for i, g in enumerate(gedlist):
-        if (g.tag == 'INDI'):
-            individuals.append(fill_individual(gedlist, i, g.xref))
-        if (g.tag == 'FAM'):
-            families.append(fill_family(gedlist, i, g.xref))
+    # Parsing of 0 level tags
+    for index, gedline in enumerate(gedlist):
+        if gedline.tag == 'INDI':
+            individuals.append(parse_single_individual(gedlist, index, \
+            gedline.xref))
+        if gedline.tag == 'FAM':
+            families.append(parse_single_family(gedlist, index, gedline.xref))
 
     # Printing of individuals and families
     individuals.sort(key=operator.attrgetter('int_id'))
@@ -105,7 +119,7 @@ def main():
     print '{:6s} {:20s}'.format('ID', 'Individual Name')
     print '-' * 26
     for indiv in individuals:
-        print '{:6s} {:20s}'.format(indiv.id, ' '.join(indiv.name))
+        print '{:6s} {:20s}'.format(indiv.uid, ' '.join(indiv.name))
 
     print '\n\nFamilies:\n'
     print '{:6s} {:20s} {:20s}'.format('ID', 'Husband', 'Wife')
@@ -114,41 +128,45 @@ def main():
         husband_name = None
         wife_name = None
         for indiv in individuals:
-            if family.husband == indiv.id:
+            if family.husband == indiv.uid:
                 husband_name = indiv.name
-            if family.wife == indiv.id:
+            if family.wife == indiv.uid:
                 wife_name = indiv.name
-        print '{:6s} {:20s} {:20s}'.format(family.id, ' '.join(husband_name),
+        print '{:6s} {:20s} {:20s}'.format(family.uid, ' '.join(husband_name),
                                            ' '.join(wife_name))
 
 
-def fill_individual(gedlist, index, xref):
+def parse_single_individual(gedlist, index, xref):
+    """
+    Parses a single individual from a GEDCOM giving the starting index of an
+    'INDI' tag. Returns an Individual class
+    """
     indiv = Individual(xref)
 
     date_type = None
-    for i, g in enumerate(gedlist[index+1:]):
-        if (g.level == 0):
+    for gedline in gedlist[index+1:]:
+        if gedline.level == 0:
             break
-        if (g.tag == "NAME"):
-            indiv.name = g.args
-        if (g.tag == "SEX"):
-            indiv.sex = g.args[0]
-        if (g.tag == "BIRT"):
+        if gedline.tag == "NAME":
+            indiv.name = gedline.args
+        if gedline.tag == "SEX":
+            indiv.sex = gedline.args[0]
+        if gedline.tag == "BIRT":
             date_type = "BIRT"
-        if (g.tag == "DEAT"):
+        if gedline.tag == "DEAT":
             date_type = "DEAT"
-        if (g.tag == "FAMC"):
-            indiv.famc = g.args[0]
-        if (g.tag == "FAMS"):
-            indiv.fams = g.args[0]
+        if gedline.tag == "FAMC":
+            indiv.famc = gedline.args[0]
+        if gedline.tag == "FAMS":
+            indiv.fams = gedline.args[0]
 
         # This assumes the following date tag corresponds to prev tag
-        if (g.tag == "DATE"):
-            if (date_type == "BIRT"):
-                indiv.birthdate = g.args
+        if gedline.tag == "DATE":
+            if date_type == "BIRT":
+                indiv.birthdate = gedline.args
                 date_type = None
-            elif (date_type == "DEAT"):
-                indiv.death = g.args
+            elif date_type == "DEAT":
+                indiv.death = gedline.args
                 date_type = None
             else:
                 print "ERROR"
@@ -156,32 +174,36 @@ def fill_individual(gedlist, index, xref):
     return indiv
 
 
-def fill_family(gedlist, index, xref):
+def parse_single_family(gedlist, index, xref):
+    """
+    Parses a single family from a GEDCOM giving the starting index of a
+    'FAM' tag. Returns an Family class
+    """
     family = Family(xref)
 
     date_type = None
-    for i, g in enumerate(gedlist[index+1:]):
-        if (g.level == 0):
+    for gedline in gedlist[index+1:]:
+        if gedline.level == 0:
             break
-        if (g.tag == "MARR"):
+        if gedline.tag == "MARR":
             date_type = "MARR"
-        if (g.tag == "DIV"):
+        if gedline.tag == "DIV":
             date_type = "DIV"
 
-        if (g.tag == "HUSB"):
-            family.husband = g.args[0]
-        if (g.tag == "WIFE"):
-            family.wife = g.args[0]
-        if (g.tag == "CHIL"):
-            family.child = g.args[0]
+        if gedline.tag == "HUSB":
+            family.husband = gedline.args[0]
+        if gedline.tag == "WIFE":
+            family.wife = gedline.args[0]
+        if gedline.tag == "CHIL":
+            family.child = gedline.args[0]
 
         # This assumes the following date tag corresponds to prev tag
-        if (g.tag == "DATE"):
-            if (date_type == "MARR"):
-                family.marrige = g.args
+        if gedline.tag == "DATE":
+            if date_type == "MARR":
+                family.marriage = gedline.args
                 date_type = None
-            elif (date_type == "DIV"):
-                family.divorce = g.args
+            elif date_type == "DIV":
+                family.divorce = gedline.args
                 date_type = None
             else:
                 print "ERROR"
