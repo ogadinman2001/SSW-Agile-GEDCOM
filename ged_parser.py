@@ -1,7 +1,12 @@
+import operator
+import re
+
 FILENAME = 'default_ged.ged'
 
-VALID_TAGS = ['INDI', 'NAME', 'SEX', 'BIRT', 'DEAT', 'FAMC', 'FAMS', 'FAM', \
-    'MARR', 'HUSB', 'WIFE', 'CHIL', 'DIV', 'DATE', 'HEAD', 'TRLR', 'NOTE']
+VALID_TAGS = ['INDI', 'NAME', 'SEX', 'BIRT', 'DEAT', 'FAMC', 'FAMS', 'FAM',
+              'MARR', 'HUSB', 'WIFE', 'CHIL', 'DIV', 'DATE', 'HEAD', 'TRLR',
+              'NOTE']
+
 
 class Gedline:
     """Class for line of gedcom"""
@@ -44,18 +49,19 @@ class Gedline:
         else:
             return False
 
+
 class Individual:
     """Class for individual"""
 
     def __init__(self, id):
         self.id = id
+        self.int_id = int(re.search(r'\d+', id).group())
         self.name = None  # Name of individual
-        self.sex = None # Sex of individual (M or F)
-        self.birthdate = None # Birth date of individual
-        self.death = None # Date of death of individual
-        self.famc = None # Family where individual is a child
-        self.fams = None # Family where individual is spouse
-
+        self.sex = None  # Sex of individual (M or F)
+        self.birthdate = None  # Birth date of individual
+        self.death = None  # Date of death of individual
+        self.famc = None  # Family where individual is a child
+        self.fams = None  # Family where individual is spouse
 
 
 class Family:
@@ -63,11 +69,12 @@ class Family:
 
     def __init__(self, id):
         self.id = id
+        self.int_id = int(re.search(r'\d+', id).group())
         self.marriage = None  # marriage event for family
-        self.husband = None # pointer for husband in family
-        self.wife = None # pointer for wife in family
-        self.child = None # pointer for child in family
-        self.divorce = None # divorce event in family
+        self.husband = None  # pointer for husband in family
+        self.wife = None  # pointer for wife in family
+        self.child = None  # pointer for child in family
+        self.divorce = None  # divorce event in family
 
 
 def main():
@@ -78,7 +85,7 @@ def main():
     lines = [line.rstrip('\n\r') for line in open(FILENAME)]
 
     for l in lines:
-        #print l
+        # print l
         current_ged = Gedline(l)
         gedlist.append(current_ged)
 
@@ -90,14 +97,30 @@ def main():
         if (g.tag == 'FAM'):
             families.append(fill_family(gedlist, i, g.xref))
 
-    #@TODO: Gardner make it so these lists are sorted and then print them
-    # all pretty like. xoxo
+    # Printing of individuals and families
+    individuals.sort(key=operator.attrgetter('int_id'))
+    families.sort(key=operator.attrgetter('int_id'))
 
+    print 'Individuals:\n'
+    print '{:6s} {:20s}'.format('ID', 'Individual Name')
+    print '-' * 26
     for indiv in individuals:
-        print indiv.name, indiv.id
+        print '{:6s} {:20s}'.format(indiv.id, ' '.join(indiv.name))
 
+    print '\n\nFamilies:\n'
+    print '{:6s} {:20s} {:20s}'.format('ID', 'Husband', 'Wife')
+    print '-' * 46
     for family in families:
-        print family.id, family.husband
+        husband_name = None
+        wife_name = None
+        for indiv in individuals:
+            if family.husband == indiv.id:
+                husband_name = indiv.name
+            if family.wife == indiv.id:
+                wife_name = indiv.name
+        print '{:6s} {:20s} {:20s}'.format(family.id, ' '.join(husband_name),
+                                           ' '.join(wife_name))
+
 
 def fill_individual(gedlist, index, xref):
     indiv = Individual(xref)
@@ -121,16 +144,17 @@ def fill_individual(gedlist, index, xref):
 
         # This assumes the following date tag corresponds to prev tag
         if (g.tag == "DATE"):
-            if (date_type=="BIRT"):
+            if (date_type == "BIRT"):
                 indiv.birthdate = g.args
                 date_type = None
-            elif (date_type=="DEAT"):
+            elif (date_type == "DEAT"):
                 indiv.death = g.args
                 date_type = None
             else:
                 print "ERROR"
 
     return indiv
+
 
 def fill_family(gedlist, index, xref):
     family = Family(xref)
@@ -153,10 +177,10 @@ def fill_family(gedlist, index, xref):
 
         # This assumes the following date tag corresponds to prev tag
         if (g.tag == "DATE"):
-            if (date_type=="MARR"):
+            if (date_type == "MARR"):
                 family.marrige = g.args
                 date_type = None
-            elif (date_type=="DIV"):
+            elif (date_type == "DIV"):
                 family.divorce = g.args
                 date_type = None
             else:
