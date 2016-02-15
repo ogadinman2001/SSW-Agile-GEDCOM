@@ -5,6 +5,11 @@
     into Individual and Familiy classes, and then prints the found Individuals
     found in <ID Name> format followed by printing the families found in
     <ID Husband Wife> format. These are printed in order of their IDs
+
+    Implemented User Stories:
+    ---
+    US05 - Marriage before death
+    US06 - Divorce before death
 """
 
 __author__ = "Rick Housley, Bryan Gardner Michael McCarthy"
@@ -19,6 +24,9 @@ VALID_TAGS = ['INDI', 'NAME', 'SEX', 'BIRT', 'DEAT', 'FAMC', 'FAMS', 'FAM',
               'MARR', 'HUSB', 'WIFE', 'CHIL', 'DIV', 'DATE', 'HEAD', 'TRLR',
               'NOTE']
 
+
+## CLASSES (GEDLINE, FAMILY, INDIVIDUAL)
+## ------------------------------------------------------------------
 
 class Gedline:
     """Class for a single line of a GEDCOM file"""
@@ -89,48 +97,7 @@ class Family:
         self.child = None  # pointer for child in family
         self.divorce = None  # divorce event in family
 
-
-def marriage_before_death(individuals, families):
-    """ US05 - Marriage should occur before death of either spouse """
-    # For each family find spouses IDs
-    for family in families:
-        if family.marriage:
-            # Search through individuals to get husband and wife
-            husband = None
-            wife = None
-            for indiv in individuals:
-                if indiv.id == family.husband:
-                    husband = indiv
-                if indiv.id == family.wife:
-                    wife = indiv
-            if (family.marriage > wife.death) or \
-                (family.marriage > husband.death):
-                # Found a case where spouse death before marriage
-                pass
-
-def divorce_before_death(individuals, families):
-    """ US06 - Divorce should occur before death of either spouse """
-    # For each family find spouses IDs
-    for family in families:
-        if family.divorce:
-            # Search through individuals to get husband and wife
-            husband = None
-            wife = None
-            for indiv in individuals:
-                if indiv.id == family.husband:
-                    husband = indiv
-                if indiv.id == family.wife:
-                    wife = indiv
-            if (family.divorce > wife.divorce) or \
-                (family.marriage > husband.death):
-                # Found a case where spouse death before divorce
-                pass
-
-def run_validation(individuals, families):
-    """ Function to run validation checks """
-    marriage_before_death(individuals, families)
-
-
+## MAIN FUNCTION GOES HERE
 def main():
     """ Main function for parsing of GEDCOM"""
 
@@ -184,6 +151,55 @@ def main():
                                            ' '.join(wife_name))
 
 
+
+# USER STORIES / VALIDATION
+#--------------------------------------------------
+def run_validation(individuals, families):
+    """ Function to run validation checks """
+    marriage_before_death(individuals, families)
+    divorce_before_death(individuals, families)
+
+def marriage_before_death(individuals, families):
+    """ US05 - Marriage should occur before death of either spouse """
+    # For each family find spouses IDs
+    for family in families:
+        if family.marriage:
+            # Search through individuals to get husband and wife
+            husband = None
+            wife = None
+            for indiv in individuals:
+                if indiv.id == family.husband:
+                    husband = indiv
+                if indiv.id == family.wife:
+                    wife = indiv
+            if (family.marriage > wife.death) or \
+                (family.marriage > husband.death):
+                # Found a case where spouse death before marriage
+                pass
+
+def divorce_before_death(individuals, families):
+    """ US06 - Divorce should occur before death of either spouse """
+    # For each family find spouses IDs
+    for family in families:
+        if family.divorce:
+            # Search through individuals to get husband and wife
+            husband = None
+            wife = None
+            for indiv in individuals:
+                if indiv.id == family.husband:
+                    husband = indiv
+                if indiv.id == family.wife:
+                    wife = indiv
+            if (family.divorce > wife.divorce) or \
+                (family.marriage > husband.death):
+                # Found a case where spouse death before divorce
+                pass
+
+
+
+# GEDCOM PARSING
+# ---------------------------
+
 def parse_single_individual(gedlist, index, xref):
     """
     Parses a single individual from a GEDCOM giving the starting index of an
@@ -214,14 +230,14 @@ def parse_single_individual(gedlist, index, xref):
                 # Store birthdate as datetime object
                 indiv.birthdate = datetime(
                     int(gedline.args[2]), \
-                    datetime.strptime(gedline.args[1],'%b').month ,\
+                    datetime.strptime(gedline.args[1],'%b').month , \
                     int(gedline.args[0]))
                 date_type = None
             elif date_type == "DEAT":
                 # Store death as datetime object
                 indiv.death = datetime(
                     int(gedline.args[2]), \
-                    datetime.strptime(gedline.args[1],'%b').month ,\
+                    datetime.strptime(gedline.args[1],'%b').month , \
                     int(gedline.args[0]))
                 date_type = None
             else:
@@ -259,7 +275,7 @@ def parse_single_family(gedlist, index, xref):
                 # Store marriage date as datetime
                 family.marriage = datetime(
                     int(gedline.args[2]), \
-                    datetime.strptime(gedline.args[1],'%b').month ,\
+                    datetime.strptime(gedline.args[1],'%b').month , \
                     int(gedline.args[0]))
                 date_type = None
 
@@ -267,7 +283,7 @@ def parse_single_family(gedlist, index, xref):
                 # Store divorce date as datetime
                 family.divorce = datetime(
                     gedline.args[2], \
-                    datetime.strptime(gedline.args[1],'%b').month ,\
+                    datetime.strptime(gedline.args[1],'%b').month , \
                     gedline.args[0])
                 date_type = None
             else:
