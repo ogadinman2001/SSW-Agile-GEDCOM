@@ -11,6 +11,7 @@ __author__ = "Rick Housley, Bryan Gardner Michael McCarthy"
 __email__ = "rhousley@stevens.edu, bgardne2@stevens.edu, mmcart1@stevens.edu"
 
 import operator, re, sys, os
+from datetime import datetime
 
 FILENAME = 'default_ged.ged'
 
@@ -89,6 +90,16 @@ class Family:
         self.divorce = None  # divorce event in family
 
 
+# def marriage_before_death(individuals, families):
+#     # For each individual search for ID in family.wife & family.husband
+#     for individual in individuals:
+#         for family in families:
+#             if (individual.uid == family.wife) or \
+#                 (individual.uid == family.husband):
+#                 # Found as a spouse
+#                 marriage = family.marriage;
+
+
 def main():
     """ Main function for parsing of GEDCOM"""
 
@@ -97,7 +108,8 @@ def main():
     families = []
 
     # Allow for arg to be passed for filename
-    if len(sys.argv)>1:
+    lines = []
+    if len(sys.argv) > 1:
         path = sys.argv[1]
         if os.path.exists(path):
             lines = [line.rstrip('\n\r') for line in open(path)]
@@ -168,10 +180,18 @@ def parse_single_individual(gedlist, index, xref):
         # This assumes the following date tag corresponds to prev tag
         if gedline.tag == "DATE":
             if date_type == "BIRT":
-                indiv.birthdate = gedline.args
+                # Store birthdate as datetime object
+                indiv.birthdate = datetime(
+                    int(gedline.args[2]), \
+                    datetime.strptime(gedline.args[1],'%b').month ,\
+                    int(gedline.args[0]))
                 date_type = None
             elif date_type == "DEAT":
-                indiv.death = gedline.args
+                # Store death as datetime object
+                indiv.death = datetime(
+                    int(gedline.args[2]), \
+                    datetime.strptime(gedline.args[1],'%b').month ,\
+                    int(gedline.args[0]))
                 date_type = None
             else:
                 print "ERROR"
@@ -205,10 +225,19 @@ def parse_single_family(gedlist, index, xref):
         # This assumes the following date tag corresponds to prev tag
         if gedline.tag == "DATE":
             if date_type == "MARR":
-                family.marriage = gedline.args
+                # Store marriage date as datetime
+                family.marriage = datetime(
+                    int(gedline.args[2]), \
+                    datetime.strptime(gedline.args[1],'%b').month ,\
+                    int(gedline.args[0]))
                 date_type = None
+
             elif date_type == "DIV":
-                family.divorce = gedline.args
+                # Store divorce date as datetime
+                family.divorce = datetime(
+                    gedline.args[2], \
+                    datetime.strptime(gedline.args[1],'%b').month ,\
+                    gedline.args[0])
                 date_type = None
             else:
                 print "ERROR"
