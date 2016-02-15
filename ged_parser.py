@@ -90,14 +90,45 @@ class Family:
         self.divorce = None  # divorce event in family
 
 
-# def marriage_before_death(individuals, families):
-#     # For each individual search for ID in family.wife & family.husband
-#     for individual in individuals:
-#         for family in families:
-#             if (individual.uid == family.wife) or \
-#                 (individual.uid == family.husband):
-#                 # Found as a spouse
-#                 marriage = family.marriage;
+def marriage_before_death(individuals, families):
+    """ US05 - Marriage should occur before death of either spouse """
+    # For each family find spouses IDs
+    for family in families:
+        if family.marriage:
+            # Search through individuals to get husband and wife
+            husband = None
+            wife = None
+            for indiv in individuals:
+                if indiv.id == family.husband:
+                    husband = indiv
+                if indiv.id == family.wife:
+                    wife = indiv
+            if (family.marriage > wife.death) or \
+                (family.marriage > husband.death):
+                # Found a case where spouse death before marriage
+                pass
+
+def divorce_before_death(individuals, families):
+    """ US06 - Divorce should occur before death of either spouse """
+    # For each family find spouses IDs
+    for family in families:
+        if family.divorce:
+            # Search through individuals to get husband and wife
+            husband = None
+            wife = None
+            for indiv in individuals:
+                if indiv.id == family.husband:
+                    husband = indiv
+                if indiv.id == family.wife:
+                    wife = indiv
+            if (family.divorce > wife.divorce) or \
+                (family.marriage > husband.death):
+                # Found a case where spouse death before divorce
+                pass
+
+def run_validation(individuals, families):
+    """ Function to run validation checks """
+    marriage_before_death(individuals, families)
 
 
 def main():
