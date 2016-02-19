@@ -17,6 +17,7 @@ __email__ = "rhousley@stevens.edu, bgardne2@stevens.edu, mmcart1@stevens.edu"
 
 import operator, re, sys, os
 from datetime import datetime
+import unittest
 
 FILENAME = 'default_ged.ged'
 
@@ -98,33 +99,26 @@ class Family:
         self.divorce = None  # divorce event in family
 
 ## MAIN FUNCTION GOES HERE
+#-------------------------
+
 def main():
     """ Main function for parsing of GEDCOM"""
-
-    gedlist = []
-    individuals = []
-    families = []
 
     # Allow for arg to be passed for filename
     lines = []
     if len(sys.argv) > 1:
-        path = sys.argv[1]
-        if os.path.exists(path):
-            lines = [line.rstrip('\n\r') for line in open(path)]
+        if sys.argv[1] == 'test':
+            suite = unittest.TestLoader().loadTestsFromTestCase(TestParser)
+            unittest.TextTestRunner(verbosity=1).run(suite)
+            exit()
+        else:
+            path = sys.argv[1]
+            if os.path.exists(path):
+                individuals, families = parse_ged(path)
     else:
-        lines = [line.rstrip('\n\r') for line in open(FILENAME)]
+        individuals, families = parse_ged(FILENAME)
 
-    for line in lines:
-        current_ged = Gedline(line)
-        gedlist.append(current_ged)
-
-    # Parsing of 0 level tags
-    for index, gedline in enumerate(gedlist):
-        if gedline.tag == 'INDI':
-            individuals.append(parse_single_individual(gedlist, index, \
-            gedline.xref))
-        if gedline.tag == 'FAM':
-            families.append(parse_single_family(gedlist, index, gedline.xref))
+    print divorce_before_death(individuals,families)
 
     # Printing of individuals and families
     individuals.sort(key=operator.attrgetter('int_id'))
@@ -154,10 +148,6 @@ def main():
 
 # USER STORIES / VALIDATION
 #--------------------------------------------------
-def run_validation(individuals, families):
-    """ Function to run validation checks """
-    marriage_before_death(individuals, families)
-    divorce_before_death(individuals, families)
 
 def marriage_before_death(individuals, families):
     """ US05 - Marriage should occur before death of either spouse """
@@ -168,14 +158,19 @@ def marriage_before_death(individuals, families):
             husband = None
             wife = None
             for indiv in individuals:
-                if indiv.id == family.husband:
+                if indiv.uid == family.husband:
                     husband = indiv
-                if indiv.id == family.wife:
+                if indiv.uid == family.wife:
                     wife = indiv
-            if (family.marriage > wife.death) or \
-                (family.marriage > husband.death):
-                # Found a case where spouse death before marriage
-                pass
+            if (family.marriage is not None ) and (wife.death is not None):
+                if family.marriage > wife.death:
+                    print "Marriage occurs after death (wife)"
+                    return False
+            if (family.marriage is not None ) and (husband.death is not None):
+                if family.marriage > husband.death:
+                    print "Marriage occurs after death (husb)"
+                    return False
+    return True
 
 def divorce_before_death(individuals, families):
     """ US06 - Divorce should occur before death of either spouse """
@@ -186,19 +181,46 @@ def divorce_before_death(individuals, families):
             husband = None
             wife = None
             for indiv in individuals:
-                if indiv.id == family.husband:
+                if indiv.uid == family.husband:
                     husband = indiv
-                if indiv.id == family.wife:
+                if indiv.uid == family.wife:
                     wife = indiv
-            if (family.divorce > wife.divorce) or \
-                (family.marriage > husband.death):
-                # Found a case where spouse death before divorce
-                pass
-
+            if (family.divorce is not None ) and (wife.death is not None):
+                if (family.divorce > wife.death):
+                    print "Marriage occurs after death (wife)"
+                    return False
+            if (family.divorce is not None ) and (husband.death is not None):
+                if (family.divorce > husband.death):
+                    # Found a case where spouse death before divorce
+                    print "Marriage occurs after death (husb)"
+                    return False
+    return True
 
 
 # GEDCOM PARSING
 # ---------------------------
+
+def parse_ged(filename):
+    individuals = []
+    families = []
+    gedlist = []
+
+    lines = [line.rstrip('\n\r') for line in open(filename)]
+
+    # Parse into gedline class
+    for line in lines:
+        current_ged = Gedline(line)
+        gedlist.append(current_ged)
+
+    # Parsing of 0 level tags
+    for index, gedline in enumerate(gedlist):
+        if gedline.tag == 'INDI':
+            individuals.append(parse_single_individual(gedlist, index, \
+            gedline.xref))
+        if gedline.tag == 'FAM':
+            families.append(parse_single_family(gedlist, index, gedline.xref))
+
+    return (individuals, families)
 
 def parse_single_individual(gedlist, index, xref):
     """
@@ -282,14 +304,45 @@ def parse_single_family(gedlist, index, xref):
             elif date_type == "DIV":
                 # Store divorce date as datetime
                 family.divorce = datetime(
-                    gedline.args[2], \
+                    int(gedline.args[2]), \
                     datetime.strptime(gedline.args[1],'%b').month , \
-                    gedline.args[0])
+                    int(gedline.args[0]))
                 date_type = None
             else:
                 print "ERROR"
 
     return family
+
+# Unit testing happens HERE
+#--------------------------
+
+class TestParser(unittest.TestCase):
+
+    def test_marriage_before_death(self):
+        # First load acceptance file
+        fail_file = "acceptance_files/fail/marriage_before_death.ged"
+        pass_file = "acceptance_files/pass/marriage_before_death.ged"
+
+        if os.path.exists(fail_file) and os.path.exists(pass_file):
+            individuals, families = parse_ged(pass_file)
+            self.assertTrue(marriage_before_death(individuals,families))
+            individuals, families = parse_ged(fail_file)
+            self.assertFalse(marriage_before_death(individuals,families))
+        else:
+            print "!!test_marriage_before_death acceptance file not found\n\n"
+
+    def test_divorce_before_death(self):
+        # First load acceptance file
+        fail_file = "acceptance_files/fail/divorce_before_death.ged"
+        pass_file = "acceptance_files/pass/divorce_before_death.ged"
+
+        if os.path.exists(fail_file) and os.path.exists(pass_file):
+            individuals, families = parse_ged(pass_file)
+            self.assertTrue(divorce_before_death(individuals,families))
+            individuals, families = parse_ged(fail_file)
+            self.assertFalse(divorce_before_death(individuals,families))
+        else:
+            print "!!test_divorce_before_death acceptance file not found\n\n"
 
 
 if __name__ == '__main__':
