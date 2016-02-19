@@ -118,8 +118,6 @@ def main():
     else:
         individuals, families = parse_ged(FILENAME)
 
-    print divorce_before_death(individuals,families)
-
     # Printing of individuals and families
     individuals.sort(key=operator.attrgetter('int_id'))
     families.sort(key=operator.attrgetter('int_id'))
@@ -149,6 +147,16 @@ def main():
 # USER STORIES / VALIDATION
 #--------------------------------------------------
 
+def birth_before_death(individuals):
+    """ US03 - Birth should occur before death of an individual """
+    # For each individual check if death occurs before death
+    for individual in individuals:
+        if (individual.death is not None):
+            if (individual.death < individual.birthdate):
+                print "Death occurs before death. ID: %s" % individual.uid
+                return False
+    return True
+
 def marriage_before_death(individuals, families):
     """ US05 - Marriage should occur before death of either spouse """
     # For each family find spouses IDs
@@ -162,11 +170,11 @@ def marriage_before_death(individuals, families):
                     husband = indiv
                 if indiv.uid == family.wife:
                     wife = indiv
-            if (family.marriage is not None ) and (wife.death is not None):
+            if (family.marriage is not None) and (wife.death is not None):
                 if family.marriage > wife.death:
                     print "Marriage occurs after death (wife)"
                     return False
-            if (family.marriage is not None ) and (husband.death is not None):
+            if (family.marriage is not None) and (husband.death is not None):
                 if family.marriage > husband.death:
                     print "Marriage occurs after death (husb)"
                     return False
@@ -185,7 +193,7 @@ def divorce_before_death(individuals, families):
                     husband = indiv
                 if indiv.uid == family.wife:
                     wife = indiv
-            if (family.divorce is not None ) and (wife.death is not None):
+            if (family.divorce is not None) and (wife.death is not None):
                 if (family.divorce > wife.death):
                     print "Marriage occurs after death (wife)"
                     return False
@@ -195,7 +203,6 @@ def divorce_before_death(individuals, families):
                     print "Marriage occurs after death (husb)"
                     return False
     return True
-
 
 # GEDCOM PARSING
 # ---------------------------
@@ -344,6 +351,18 @@ class TestParser(unittest.TestCase):
         else:
             print "!!test_divorce_before_death acceptance file not found\n\n"
 
+    def test_birth_before_death(self):
+        #First load acceptance file
+        fail_file = "acceptance_files/fail/birth_before_death.ged"
+        pass_file = "acceptance_files/pass/birth_before_death.ged"
+
+        if os.path.exists(fail_file) and os.path.exists(pass_file):
+            individuals, families = parse_ged(pass_file)
+            self.assertTrue(birth_before_death(individuals))
+            individuals, families = parse_ged(fail_file)
+            self.assertFalse(birth_before_death(individuals))
+        else:
+            print "!!test_birth_before_death acceptance file not found\n\n"
 
 if __name__ == '__main__':
     main()
