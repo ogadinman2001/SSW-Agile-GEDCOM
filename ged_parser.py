@@ -15,7 +15,10 @@
 __author__ = "Rick Housley, Bryan Gardner Michael McCarthy"
 __email__ = "rhousley@stevens.edu, bgardne2@stevens.edu, mmcart1@stevens.edu"
 
-import operator, re, sys, os
+import sys
+import re
+import operator
+import os
 from datetime import datetime
 import unittest
 
@@ -151,9 +154,21 @@ def birth_before_death(individuals):
     """ US03 - Birth should occur before death of an individual """
     # For each individual check if death occurs before death
     for individual in individuals:
-        if (individual.death is not None):
-            if (individual.death < individual.birthdate):
+        if individual.death is not None:
+            if individual.death < individual.birthdate:
                 print "Death occurs before death. ID: %s" % individual.uid
+                return False
+    return True
+
+def marriage_before_divorce(families):
+    """ US04 - Marriage should occur before divorce """
+    # Search though the families
+    for family in families:
+        # Check if family has marriage and divorce dates
+        if (family.marriage is not None) and (family.divorce is not None):
+            if family.marriage > family.divorce:
+                print "Marriage occurs after divorce. Family ID: %s" % \
+                    family.uid
                 return False
     return True
 
@@ -197,8 +212,8 @@ def divorce_before_death(individuals, families):
                 if (family.divorce > wife.death):
                     print "Marriage occurs after death (wife)"
                     return False
-            if (family.divorce is not None ) and (husband.death is not None):
-                if (family.divorce > husband.death):
+            if (family.divorce is not None) and (husband.death is not None):
+                if family.divorce > husband.death:
                     # Found a case where spouse death before divorce
                     print "Marriage occurs after death (husb)"
                     return False
@@ -259,7 +274,7 @@ def parse_single_individual(gedlist, index, xref):
                 # Store birthdate as datetime object
                 indiv.birthdate = datetime(
                     int(gedline.args[2]), \
-                    datetime.strptime(gedline.args[1],'%b').month , \
+                    datetime.strptime(gedline.args[1],'%b').month, \
                     int(gedline.args[0]))
                 date_type = None
             elif date_type == "DEAT":
@@ -332,9 +347,9 @@ class TestParser(unittest.TestCase):
 
         if os.path.exists(fail_file) and os.path.exists(pass_file):
             individuals, families = parse_ged(pass_file)
-            self.assertTrue(marriage_before_death(individuals,families))
+            self.assertTrue(marriage_before_death(individuals, families))
             individuals, families = parse_ged(fail_file)
-            self.assertFalse(marriage_before_death(individuals,families))
+            self.assertFalse(marriage_before_death(individuals, families))
         else:
             print "!!test_marriage_before_death acceptance file not found\n\n"
 
@@ -363,6 +378,19 @@ class TestParser(unittest.TestCase):
             self.assertFalse(birth_before_death(individuals))
         else:
             print "!!test_birth_before_death acceptance file not found\n\n"
+
+    def test_marriage_before_divorce(self):
+        #First load acceptance file
+        fail_file = "acceptance_files/fail/marriage_before_divorce.ged"
+        pass_file = "acceptance_files/pass/marriage_before_divorce.ged"
+
+        if os.path.exists(fail_file) and os.path.exists(pass_file):
+            individuals, families = parse_ged(pass_file)
+            self.assertTrue(marriage_before_divorce(families))
+            individuals, families = parse_ged(fail_file)
+            self.assertFalse(marriage_before_divorce(families))
+        else:
+            print "!!marriage_before_divorce acceptance file not found\n\n"
 
 if __name__ == '__main__':
     main()
