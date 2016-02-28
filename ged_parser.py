@@ -34,7 +34,7 @@ now = datetime.now()
 ## CLASSES (GEDLINE, FAMILY, INDIVIDUAL)
 ## ------------------------------------------------------------------
 
-class Gedline:
+class Gedline(object):
     """Class for a single line of a GEDCOM file"""
 
     def __init__(self, line):
@@ -77,7 +77,7 @@ class Gedline:
             return False
 
 
-class Individual:
+class Individual(object):
     """ Class for an individual """
 
     def __init__(self, uid):
@@ -91,7 +91,7 @@ class Individual:
         self.fams = None  # Family where individual is spouse
 
 
-class Family:
+class Family(object):
     """ Class for a family """
 
     def __init__(self, uid):
@@ -151,7 +151,7 @@ def main():
 # USER STORIES / VALIDATION
 #--------------------------------------------------
 
-def dates_before_current(individuals, families):   #what is the difference between if __ and if (__ is not none)
+def dates_before_current(individuals, families):
     """ US01 All dates must be before the current date """
     # date of birth, death, marriage, or divorce must be before current date
     for family in families:
@@ -228,8 +228,6 @@ def birth_before_death(individuals):
                     .rjust(PADDING-len(error_string))
                 print  error_string + error_location
                 return False
-
-
     return True
 
 def marriage_before_divorce(families):
@@ -306,6 +304,8 @@ def divorce_before_death(individuals, families):
 # ---------------------------
 
 def parse_ged(filename):
+    """ Parses a GEDCOM file. Returns list of individual instances and family
+    instances."""
     individuals = []
     families = []
     gedlist = []
@@ -357,14 +357,14 @@ def parse_single_individual(gedlist, index, xref):
                 # Store birthdate as datetime object
                 indiv.birthdate = datetime(
                     int(gedline.args[2]), \
-                    datetime.strptime(gedline.args[1],'%b').month, \
+                    datetime.strptime(gedline.args[1], '%b').month, \
                     int(gedline.args[0]))
                 date_type = None
             elif date_type == "DEAT":
                 # Store death as datetime object
                 indiv.death = datetime(
                     int(gedline.args[2]), \
-                    datetime.strptime(gedline.args[1],'%b').month , \
+                    datetime.strptime(gedline.args[1], '%b').month, \
                     int(gedline.args[0]))
                 date_type = None
             else:
@@ -401,7 +401,7 @@ def parse_single_family(gedlist, index, xref):
                 # Store marriage date as datetime
                 family.marriage = datetime(
                     int(gedline.args[2]), \
-                    datetime.strptime(gedline.args[1],'%b').month , \
+                    datetime.strptime(gedline.args[1], '%b').month,\
                     int(gedline.args[0]))
                 date_type = None
 
@@ -409,7 +409,7 @@ def parse_single_family(gedlist, index, xref):
                 # Store divorce date as datetime
                 family.divorce = datetime(
                     int(gedline.args[2]), \
-                    datetime.strptime(gedline.args[1],'%b').month , \
+                    datetime.strptime(gedline.args[1], '%b').month, \
                     int(gedline.args[0]))
                 date_type = None
             else:
@@ -421,6 +421,7 @@ def parse_single_family(gedlist, index, xref):
 #--------------------------
 
 class TestParser(unittest.TestCase):
+    """ Unit tests to verift unit stories"""
 
     def test_dates_before_current(self):
         # First load acceptance file
@@ -468,9 +469,9 @@ class TestParser(unittest.TestCase):
 
         if os.path.exists(fail_file) and os.path.exists(pass_file):
             individuals, families = parse_ged(pass_file)
-            self.assertTrue(divorce_before_death(individuals,families))
+            self.assertTrue(divorce_before_death(individuals, families))
             individuals, families = parse_ged(fail_file)
-            self.assertFalse(divorce_before_death(individuals,families))
+            self.assertFalse(divorce_before_death(individuals, families))
         else:
             print "!!test_divorce_before_death acceptance file not found\n\n"
 
@@ -480,9 +481,9 @@ class TestParser(unittest.TestCase):
         pass_file = "acceptance_files/pass/birth_before_death.ged"
 
         if os.path.exists(fail_file) and os.path.exists(pass_file):
-            individuals, families = parse_ged(pass_file)
+            individuals, _ = parse_ged(pass_file)
             self.assertTrue(birth_before_death(individuals))
-            individuals, families = parse_ged(fail_file)
+            individuals, _ = parse_ged(fail_file)
             self.assertFalse(birth_before_death(individuals))
         else:
             print "!!test_birth_before_death acceptance file not found\n\n"
@@ -493,9 +494,9 @@ class TestParser(unittest.TestCase):
         pass_file = "acceptance_files/pass/marriage_before_divorce.ged"
 
         if os.path.exists(fail_file) and os.path.exists(pass_file):
-            individuals, families = parse_ged(pass_file)
+            _, families = parse_ged(pass_file)
             self.assertTrue(marriage_before_divorce(families))
-            individuals, families = parse_ged(fail_file)
+            _, families = parse_ged(fail_file)
             self.assertFalse(marriage_before_divorce(families))
         else:
             print "!!marriage_before_divorce acceptance file not found\n\n"
