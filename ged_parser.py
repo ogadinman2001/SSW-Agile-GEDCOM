@@ -23,6 +23,7 @@ from datetime import datetime
 import unittest
 
 FILENAME = 'default_ged.ged'
+PADDING = 80
 
 VALID_TAGS = ['INDI', 'NAME', 'SEX', 'BIRT', 'DEAT', 'FAMC', 'FAMS', 'FAM',
               'MARR', 'HUSB', 'WIFE', 'CHIL', 'DIV', 'DATE', 'HEAD', 'TRLR',
@@ -155,20 +156,32 @@ def dates_before_current(individuals, families):   #what is the difference betwe
     # date of birth, death, marriage, or divorce must be before current date
     for family in families:
         if family.marriage and family.marriage > now:
-            print "Marriage after current date"
+            error_string = "Marriage occurs after current date"
+            error_location = ("(Family ID: %s)" % family.uid)\
+                .rjust(PADDING-len(error_string))
+            print  error_string + error_location
             return False
 
         if family.divorce and family.divorce > now:
-            print "divorce after current date"
+            error_string = "Divorce occurs after current date"
+            error_location = ("(Family ID: %s)" % family.uid)\
+                .rjust(PADDING-len(error_string))
+            print  error_string + error_location
             return False
 
     for indiv in individuals:
         if indiv.birthdate and indiv.birthdate > now:
-            print "Birth after current date"
+            error_string = "Birth occurs after current date"
+            error_location = ("(Individual ID: %s)" % indiv.uid)\
+                .rjust(PADDING-len(error_string))
+            print  error_string + error_location
             return False
 
         if indiv.death and indiv.death > now:
-            print "Death after current date"
+            error_string = "Death occurs after current date"
+            error_location = ("(Individual ID: %s)" % indiv.uid)\
+                .rjust(PADDING-len(error_string))
+            print  error_string + error_location
             return False
     return True
 
@@ -186,13 +199,20 @@ def birth_before_marriage(individuals, families):
                     husband = indiv
                 if indiv.uid == family.wife:
                     wife = indiv
+
             if wife.birthdate and wife.birthdate > family.marriage:
                 # Found a case spouse marries before birthday
-                print "Birth occurs after marraige (wife)"
+                error_string = "Birth of wife occurs after marriage"
+                error_location = ("(Individual ID: %s)" % wife.uid)\
+                    .rjust(PADDING-len(error_string))
+                print  error_string + error_location
                 return False
 
             if husband.birthdate and husband.birthdate > family.marriage:
-                print "Birth occurs after marriage (husb)"
+                error_string = "Birth of husband occurs after marraige"
+                error_location = ("(Individual ID: %s)" % husband.uid)\
+                    .rjust(PADDING-len(error_string))
+                print  error_string + error_location
                 return False
 
     return True
@@ -201,10 +221,15 @@ def birth_before_death(individuals):
     """ US03 - Birth should occur before death of an individual """
     # For each individual check if death occurs before death
     for individual in individuals:
-        if individual.death:
+        if individual.death and individual.birthdate:
             if individual.death < individual.birthdate:
-                print "Birth occurs before death. ID: %s " % individual.uid
+                error_string = "Birth occurs before death."
+                error_location = ("(Individual ID: %s)" % individual.uid)\
+                    .rjust(PADDING-len(error_string))
+                print  error_string + error_location
                 return False
+
+
     return True
 
 def marriage_before_divorce(families):
@@ -214,8 +239,10 @@ def marriage_before_divorce(families):
         # Check if family has marriage and divorce dates
         if family.marriage and family.divorce:
             if family.marriage > family.divorce:
-                print "Marriage occurs after divorce. Family ID: %s" % \
-                    family.uid
+                error_string = "Marriage occurs after divorce"
+                error_location = ("(Family ID: %s)" % family.uid)\
+                    .rjust(PADDING-len(error_string))
+                print  error_string + error_location
                 return False
     return True
 
@@ -233,10 +260,16 @@ def marriage_before_death(individuals, families):
                 if indiv.uid == family.wife:
                     wife = indiv
             if wife.death is not None and family.marriage > wife.death:
-                print "Marriage occurs after death (wife)"
+                error_string = "Marriage occurs after death of wife"
+                error_location = ("(Individual ID: %s)" % wife.uid)\
+                    .rjust(PADDING-len(error_string))
+                print  error_string + error_location
                 return False
             if husband.death is not None and family.marriage > husband.death:
-                print "Marriage occurs after death (husb)"
+                error_string = "Marriage occurs after death of husband"
+                error_location = ("(Individual ID: %s)" % husband.uid)\
+                    .rjust(PADDING-len(error_string))
+                print  error_string + error_location
                 return False
     return True
 
@@ -253,12 +286,19 @@ def divorce_before_death(individuals, families):
                     husband = indiv
                 if indiv.uid == family.wife:
                     wife = indiv
+
+            # Found a case where spouse death before divorce
             if wife.death is not None and family.divorce > wife.death:
-                print "Divorce occurs after death (wife)"
+                error_string = "Divorce occurs after death of wife"
+                error_location = ("(Individual ID %s)" % wife.uid)\
+                    .rjust(PADDING-len(error_string))
+                print  error_string + error_location
                 return False
             if husband.death is not None and family.divorce > husband.death:
-                # Found a case where spouse death before divorce
-                print "Divorce occurs after death (husb)"
+                error_string = "Divorce occurs after death of husband"
+                error_location = ("(Individual ID %s)" % husband.uid)\
+                    .rjust(PADDING-len(error_string))
+                print  error_string + error_location
                 return False
     return True
 
