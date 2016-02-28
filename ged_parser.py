@@ -13,7 +13,7 @@
 """
 
 __author__ = "Rick Housley, Bryan Gardner Michael McCarthy"
-__email__ = "rhousley@stevens.edu, bgardne2@stevens.edu, mmcart1@stevens.edu"
+__email__ = "rhousley@stevens.edu, bgardne2@stevens.edu, mmccart1@stevens.edu"
 
 import sys
 import re
@@ -28,6 +28,7 @@ VALID_TAGS = ['INDI', 'NAME', 'SEX', 'BIRT', 'DEAT', 'FAMC', 'FAMS', 'FAM',
               'MARR', 'HUSB', 'WIFE', 'CHIL', 'DIV', 'DATE', 'HEAD', 'TRLR',
               'NOTE']
 
+now = datetime.now()
 
 ## CLASSES (GEDLINE, FAMILY, INDIVIDUAL)
 ## ------------------------------------------------------------------
@@ -150,13 +151,62 @@ def main():
 # USER STORIES / VALIDATION
 #--------------------------------------------------
 
+def dates_before_current(individuals, families):   #what is the difference between if __ and if (__ is not none)
+    """ US01 All dates must be before the current date """
+    # date of birth, death, marriage, or divorce must be before current date
+    for family in families:
+        if family.marriage:
+            if (family.marriage is not None):
+                if (family.marriage > now):
+                    print "Marriage after current date"
+                    return False
+        if family.divorce:
+            if (family.divorce is not None):
+                if (family.divorce > now):
+                    print "divorce after current date"
+                    return False
+    for indiv in individuals:
+        if (indiv.birthdate > now):
+            print "Birth after current date"
+            return False
+        if (indiv.death is not None):
+            if (indiv.death > now):
+                print "Death after current date"
+                return False
+    return True
+
+
+def birth_before_marriage(individuals, families):
+    """ US02 - Birth should occur before marriage of that individual """
+    # For each individual check if birth occurs before marriage
+    for family in families:
+        if family.marriage:
+            # Search through individuals to get husband and wife
+            husband = None
+            wife = None
+            for indiv in individuals:
+                if indiv.uid == family.husband:
+                    husband = indiv
+                if indiv.uid == family.wife:
+                    wife = indiv
+            if (family.marriage is not None):
+                if (wife.birthdate > family.marriage):
+                    # Found a case spouse marries before birthday
+                    print "Birth occurs after marraige (wife)"
+                    return False
+            if (family.marriage is not None):
+                if (husband.birthdate > family.marriage):
+                    print "Birth occurs after marriage (husb)"
+                    return False
+    return True
+
 def birth_before_death(individuals):
     """ US03 - Birth should occur before death of an individual """
     # For each individual check if death occurs before death
     for individual in individuals:
         if individual.death is not None:
             if individual.death < individual.birthdate:
-                print "Death occurs before death. ID: %s" % individual.uid
+                print "Birth occurs before death. ID: %s " % individual.uid
                 return False
     return True
 
@@ -210,12 +260,12 @@ def divorce_before_death(individuals, families):
                     wife = indiv
             if (family.divorce is not None) and (wife.death is not None):
                 if (family.divorce > wife.death):
-                    print "Marriage occurs after death (wife)"
+                    print "Divorce occurs after death (wife)"
                     return False
             if (family.divorce is not None) and (husband.death is not None):
                 if family.divorce > husband.death:
                     # Found a case where spouse death before divorce
-                    print "Marriage occurs after death (husb)"
+                    print "Divorce occurs after death (husb)"
                     return False
     return True
 
@@ -286,7 +336,6 @@ def parse_single_individual(gedlist, index, xref):
                 date_type = None
             else:
                 print "ERROR"
-
     return indiv
 
 
@@ -339,6 +388,32 @@ def parse_single_family(gedlist, index, xref):
 #--------------------------
 
 class TestParser(unittest.TestCase):
+
+    def test_dates_before_current(self):
+        # First load acceptance file
+        fail_file = "acceptance_files/fail/date_before_current.ged"
+        pass_file = "acceptance_files/pass/date_before_current.ged"
+
+        if os.path.exists(fail_file) and os.path.exists(pass_file):
+            individuals, families = parse_ged(pass_file)
+            self.assertTrue(dates_before_current(individuals, families))
+            individuals, families = parse_ged(fail_file)
+            self.assertFalse(dates_before_current(individuals, families))
+        else:
+            print "!!test_date_before_current acceptance file not found\n\n"
+
+    def test_birth_before_marriage(self):
+        # First load acceptance file
+        fail_file = "acceptance_files/fail/birth_before_marriage.ged"
+        pass_file = "acceptance_files/pass/birth_before_marriage.ged"
+
+        if os.path.exists(fail_file) and os.path.exists(pass_file):
+            individuals, families = parse_ged(pass_file)
+            self.assertTrue(birth_before_marriage(individuals, families))
+            individuals, families = parse_ged(fail_file)
+            self.assertFalse(birth_before_marriage(individuals, families))
+        else:
+            print "!!test_marriage_before_death acceptance file not found\n\n"
 
     def test_marriage_before_death(self):
         # First load acceptance file
