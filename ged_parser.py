@@ -108,8 +108,7 @@ class Family:
 def main():
     """ Main function for parsing of GEDCOM"""
 
-    # Allow for arg to be passed for filename
-    lines = []
+    # Allow for arguments to be passed for filename
     if len(sys.argv) > 1:
         if sys.argv[1] == 'test':
             suite = unittest.TestLoader().loadTestsFromTestCase(TestParser)
@@ -155,24 +154,22 @@ def dates_before_current(individuals, families):   #what is the difference betwe
     """ US01 All dates must be before the current date """
     # date of birth, death, marriage, or divorce must be before current date
     for family in families:
-        if family.marriage:
-            if (family.marriage is not None):
-                if (family.marriage > now):
-                    print "Marriage after current date"
-                    return False
-        if family.divorce:
-            if (family.divorce is not None):
-                if (family.divorce > now):
-                    print "divorce after current date"
-                    return False
+        if family.marriage and family.marriage > now:
+            print "Marriage after current date"
+            return False
+
+        if family.divorce and family.divorce > now:
+            print "divorce after current date"
+            return False
+
     for indiv in individuals:
-        if (indiv.birthdate > now):
+        if indiv.birthdate and indiv.birthdate > now:
             print "Birth after current date"
             return False
-        if (indiv.death is not None):
-            if (indiv.death > now):
-                print "Death after current date"
-                return False
+
+        if indiv.death and indiv.death > now:
+            print "Death after current date"
+            return False
     return True
 
 
@@ -189,22 +186,22 @@ def birth_before_marriage(individuals, families):
                     husband = indiv
                 if indiv.uid == family.wife:
                     wife = indiv
-            if (family.marriage is not None):
-                if (wife.birthdate > family.marriage):
-                    # Found a case spouse marries before birthday
-                    print "Birth occurs after marraige (wife)"
-                    return False
-            if (family.marriage is not None):
-                if (husband.birthdate > family.marriage):
-                    print "Birth occurs after marriage (husb)"
-                    return False
+            if wife.birthdate and wife.birthdate > family.marriage:
+                # Found a case spouse marries before birthday
+                print "Birth occurs after marraige (wife)"
+                return False
+
+            if husband.birthdate and husband.birthdate > family.marriage:
+                print "Birth occurs after marriage (husb)"
+                return False
+
     return True
 
 def birth_before_death(individuals):
     """ US03 - Birth should occur before death of an individual """
     # For each individual check if death occurs before death
     for individual in individuals:
-        if individual.death is not None:
+        if individual.death:
             if individual.death < individual.birthdate:
                 print "Birth occurs before death. ID: %s " % individual.uid
                 return False
@@ -215,7 +212,7 @@ def marriage_before_divorce(families):
     # Search though the families
     for family in families:
         # Check if family has marriage and divorce dates
-        if (family.marriage is not None) and (family.divorce is not None):
+        if family.marriage and family.divorce:
             if family.marriage > family.divorce:
                 print "Marriage occurs after divorce. Family ID: %s" % \
                     family.uid
@@ -235,19 +232,17 @@ def marriage_before_death(individuals, families):
                     husband = indiv
                 if indiv.uid == family.wife:
                     wife = indiv
-            if (family.marriage is not None) and (wife.death is not None):
-                if family.marriage > wife.death:
-                    print "Marriage occurs after death (wife)"
-                    return False
-            if (family.marriage is not None) and (husband.death is not None):
-                if family.marriage > husband.death:
-                    print "Marriage occurs after death (husb)"
-                    return False
+            if wife.death is not None and family.marriage > wife.death:
+                print "Marriage occurs after death (wife)"
+                return False
+            if husband.death is not None and family.marriage > husband.death:
+                print "Marriage occurs after death (husb)"
+                return False
     return True
 
 def divorce_before_death(individuals, families):
     """ US06 - Divorce should occur before death of either spouse """
-    # For each family find spouses IDs
+
     for family in families:
         if family.divorce:
             # Search through individuals to get husband and wife
@@ -258,15 +253,13 @@ def divorce_before_death(individuals, families):
                     husband = indiv
                 if indiv.uid == family.wife:
                     wife = indiv
-            if (family.divorce is not None) and (wife.death is not None):
-                if (family.divorce > wife.death):
-                    print "Divorce occurs after death (wife)"
-                    return False
-            if (family.divorce is not None) and (husband.death is not None):
-                if family.divorce > husband.death:
-                    # Found a case where spouse death before divorce
-                    print "Divorce occurs after death (husb)"
-                    return False
+            if wife.death is not None and family.divorce > wife.death:
+                print "Divorce occurs after death (wife)"
+                return False
+            if husband.death is not None and family.divorce > husband.death:
+                # Found a case where spouse death before divorce
+                print "Divorce occurs after death (husb)"
+                return False
     return True
 
 # GEDCOM PARSING
