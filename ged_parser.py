@@ -1,18 +1,17 @@
 #!/usr/bin/env python
 """ Python module for parsing GEDCOM geneaology files
 
-    Currently reads in default_ged.ged from local directory, parses the file
-    into Individual and Familiy classes, and then prints the found Individuals
-    found in <ID Name> format followed by printing the families found in
-    <ID Husband Wife> format. These are printed in order of their IDs
+    This is a command-line program used to discover errors and anomalies in
+    GEDCOM geanealogy files. This was developed for the Stevens Graduate
+    Software Engineering course Agile Methods for Software Development (SSW 555)
+    as an exercise in Extreme Programming and Scrum methods.
 
-    Implemented User Stories:
-    ---
-    US05 - Marriage before death
-    US06 - Divorce before death
+    Currently reads a) default_ged.ged from local directory, b) a passed GEDCOM
+    file, or c) runs the tests on the acceptance tests. After reading in a file
+    the GEDCOM is parsed and scanned for errors using our verification features.
 """
 
-__author__ = "Rick Housley, Bryan Gardner Michael McCarthy"
+__author__ = "Rick Housley, Bryan Gardner, Michael McCarthy"
 __email__ = "rhousley@stevens.edu, bgardne2@stevens.edu, mmccart1@stevens.edu"
 
 import sys
