@@ -153,6 +153,8 @@ def main():
 
 def dates_before_current(individuals, families):
     """ US01 All dates must be before the current date """
+
+    return_flag = True
     # date of birth, death, marriage, or divorce must be before current date
     for family in families:
         if family.marriage and family.marriage > now:
@@ -160,14 +162,14 @@ def dates_before_current(individuals, families):
             error_location = ("(Family ID: %s)" % family.uid)\
                 .rjust(PADDING-len(error_string))
             print  error_string + error_location
-            return False
+            return_flag = False
 
         if family.divorce and family.divorce > now:
             error_string = "Divorce occurs after current date"
             error_location = ("(Family ID: %s)" % family.uid)\
                 .rjust(PADDING-len(error_string))
             print  error_string + error_location
-            return False
+            return_flag = False
 
     for indiv in individuals:
         if indiv.birthdate and indiv.birthdate > now:
@@ -175,20 +177,23 @@ def dates_before_current(individuals, families):
             error_location = ("(Individual ID: %s)" % indiv.uid)\
                 .rjust(PADDING-len(error_string))
             print  error_string + error_location
-            return False
+            return_flag = False
 
         if indiv.death and indiv.death > now:
             error_string = "Death occurs after current date"
             error_location = ("(Individual ID: %s)" % indiv.uid)\
                 .rjust(PADDING-len(error_string))
             print  error_string + error_location
-            return False
-    return True
+            return_flag = False
+
+    return return_flag
 
 
 def birth_before_marriage(individuals, families):
     """ US02 - Birth should occur before marriage of that individual """
+
     # For each individual check if birth occurs before marriage
+    return_flag = True
     for family in families:
         if family.marriage:
             # Search through individuals to get husband and wife
@@ -206,20 +211,21 @@ def birth_before_marriage(individuals, families):
                 error_location = ("(Individual ID: %s)" % wife.uid)\
                     .rjust(PADDING-len(error_string))
                 print  error_string + error_location
-                return False
+                return_flag = False
 
             if husband.birthdate and husband.birthdate > family.marriage:
                 error_string = "Birth of husband occurs after marraige"
                 error_location = ("(Individual ID: %s)" % husband.uid)\
                     .rjust(PADDING-len(error_string))
                 print  error_string + error_location
-                return False
+                return_flag = False
 
-    return True
+    return return_flag
 
 def birth_before_death(individuals):
     """ US03 - Birth should occur before death of an individual """
     # For each individual check if death occurs before death
+    return_flag = True
     for individual in individuals:
         if individual.death and individual.birthdate:
             if individual.death < individual.birthdate:
@@ -227,12 +233,14 @@ def birth_before_death(individuals):
                 error_location = ("(Individual ID: %s)" % individual.uid)\
                     .rjust(PADDING-len(error_string))
                 print  error_string + error_location
-                return False
-    return True
+                return_flag = False
+    return return_flag
 
 def marriage_before_divorce(families):
     """ US04 - Marriage should occur before divorce """
+
     # Search though the families
+    return_flag = True
     for family in families:
         # Check if family has marriage and divorce dates
         if family.marriage and family.divorce:
@@ -241,12 +249,14 @@ def marriage_before_divorce(families):
                 error_location = ("(Family ID: %s)" % family.uid)\
                     .rjust(PADDING-len(error_string))
                 print  error_string + error_location
-                return False
-    return True
+                return_flag = False
+    return return_flag
 
 def marriage_before_death(individuals, families):
     """ US05 - Marriage should occur before death of either spouse """
+
     # For each family find spouses IDs
+    return_flag = True
     for family in families:
         if family.marriage:
             # Search through individuals to get husband and wife
@@ -262,18 +272,19 @@ def marriage_before_death(individuals, families):
                 error_location = ("(Individual ID: %s)" % wife.uid)\
                     .rjust(PADDING-len(error_string))
                 print  error_string + error_location
-                return False
+                return_flag = False
             if husband.death is not None and family.marriage > husband.death:
                 error_string = "Marriage occurs after death of husband"
                 error_location = ("(Individual ID: %s)" % husband.uid)\
                     .rjust(PADDING-len(error_string))
                 print  error_string + error_location
-                return False
-    return True
+                return_flag = False
+    return return_flag
 
 def divorce_before_death(individuals, families):
     """ US06 - Divorce should occur before death of either spouse """
 
+    return_flag = True
     for family in families:
         if family.divorce:
             # Search through individuals to get husband and wife
@@ -291,14 +302,14 @@ def divorce_before_death(individuals, families):
                 error_location = ("(Individual ID %s)" % wife.uid)\
                     .rjust(PADDING-len(error_string))
                 print  error_string + error_location
-                return False
+                return_flag = False
             if husband.death is not None and family.divorce > husband.death:
                 error_string = "Divorce occurs after death of husband"
                 error_location = ("(Individual ID %s)" % husband.uid)\
                     .rjust(PADDING-len(error_string))
                 print  error_string + error_location
-                return False
-    return True
+                return_flag = False
+    return return_flag
 
 # GEDCOM PARSING
 # ---------------------------
