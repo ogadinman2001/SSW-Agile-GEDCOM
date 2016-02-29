@@ -121,32 +121,41 @@ def main():
     else:
         individuals, families = parse_ged(FILENAME)
 
-    # Printing of individuals and families
+    summary(individuals, families)
+    validation(individuals, families)
+
+def summary(individuals,families):
+    """ Prints a summary of the GEDCOM file """
+
     individuals.sort(key=operator.attrgetter('int_id'))
     families.sort(key=operator.attrgetter('int_id'))
 
-    # print 'Individuals:\n'
-    # print '{:6s} {:20s}'.format('ID', 'Individual Name')
-    # print '-' * 26
-    # for indiv in individuals:
-    #     print '{:6s} {:20s}'.format(indiv.uid, ' '.join(indiv.name))
-    #
-    # print '\n\nFamilies:\n'
-    # print '{:6s} {:20s} {:20s}'.format('ID', 'Husband', 'Wife')
-    # print '-' * 46
-    # for family in families:
-    #     husband_name = None
-    #     wife_name = None
-    #     for indiv in individuals:
-    #         if family.husband == indiv.uid:
-    #             husband_name = indiv.name
-    #         if family.wife == indiv.uid:
-    #             wife_name = indiv.name
-    #     print '{:6s} {:20s} {:20s}'.format(family.uid, ' '.join(husband_name),
-    #                                        ' '.join(wife_name))
 
-    validation(individuals, families)
+    print 'Individuals:\n'
+    print '{:6s} {:20s} {:5s} {:10s}     {:10s}'\
+        .format('ID', 'Individual Name', 'Sex', 'Birthdate', 'Deathdate')
+    print '-' * 80
+    for indiv in individuals:
+        print '{:6s} {:20s} {:5s} {:.10s}     {:.10s}'\
+        .format(indiv.uid, ' '.join(indiv.name), indiv.sex, \
+        str(indiv.birthdate), str(indiv.death))
 
+    print '\n\nFamilies:\n'
+    print '{:6s} {:20s} {:20s} {:10s} {:10s} {}'\
+        .format('ID', 'Husband', 'Wife', 'M-Date', 'D-Date',\
+         'Number of Children')
+    print '-' * 80
+    for family in families:
+        husband_name = None
+        wife_name = None
+        for indiv in individuals:
+            if family.husband == indiv.uid:
+                husband_name = indiv.name
+            if family.wife == indiv.uid:
+                wife_name = indiv.name
+        print '{:6s} {:20s} {:20s} {:10s} {:10s} {}'\
+        .format(family.uid, ' '.join(husband_name),' '.join(wife_name),\
+        str(family.marriage), str(family.divorce), '0')
 
 
 # USER STORIES / VALIDATION
