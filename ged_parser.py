@@ -126,30 +126,44 @@ def main():
     individuals.sort(key=operator.attrgetter('int_id'))
     families.sort(key=operator.attrgetter('int_id'))
 
-    print 'Individuals:\n'
-    print '{:6s} {:20s}'.format('ID', 'Individual Name')
-    print '-' * 26
-    for indiv in individuals:
-        print '{:6s} {:20s}'.format(indiv.uid, ' '.join(indiv.name))
+    # print 'Individuals:\n'
+    # print '{:6s} {:20s}'.format('ID', 'Individual Name')
+    # print '-' * 26
+    # for indiv in individuals:
+    #     print '{:6s} {:20s}'.format(indiv.uid, ' '.join(indiv.name))
+    #
+    # print '\n\nFamilies:\n'
+    # print '{:6s} {:20s} {:20s}'.format('ID', 'Husband', 'Wife')
+    # print '-' * 46
+    # for family in families:
+    #     husband_name = None
+    #     wife_name = None
+    #     for indiv in individuals:
+    #         if family.husband == indiv.uid:
+    #             husband_name = indiv.name
+    #         if family.wife == indiv.uid:
+    #             wife_name = indiv.name
+    #     print '{:6s} {:20s} {:20s}'.format(family.uid, ' '.join(husband_name),
+    #                                        ' '.join(wife_name))
 
-    print '\n\nFamilies:\n'
-    print '{:6s} {:20s} {:20s}'.format('ID', 'Husband', 'Wife')
-    print '-' * 46
-    for family in families:
-        husband_name = None
-        wife_name = None
-        for indiv in individuals:
-            if family.husband == indiv.uid:
-                husband_name = indiv.name
-            if family.wife == indiv.uid:
-                wife_name = indiv.name
-        print '{:6s} {:20s} {:20s}'.format(family.uid, ' '.join(husband_name),
-                                           ' '.join(wife_name))
+    validation(individuals, families)
 
 
 
 # USER STORIES / VALIDATION
 #--------------------------------------------------
+def validation(individuals, families):
+    """ Validation check to run all user stories """
+
+    # Sprint 1
+    dates_before_current(individuals, families)
+    birth_before_marriage(individuals, families)
+    birth_before_death(individuals)
+    marriage_before_divorce(families)
+    marriage_before_death(individuals, families)
+    divorce_before_death(individuals, families)
+
+    # Sprint 2
 
 def dates_before_current(individuals, families):
     """ US01 All dates must be before the current date """
