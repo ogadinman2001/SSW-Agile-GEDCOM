@@ -5,18 +5,18 @@ This is a command-line program used to discover errors and anomalies in GEDCOM g
 
 To parse the default GEDCOM pass no arguments:
 ```
-./ged_parser
+python ged_parser.py
 ```
 
 To parse a specific GEDCOM pass a path argument:
 ```
-./ged_parser.py ged_tests/bgardner_P02.ged
+python ged_parser.py ged_tests/bgardner_P02.ged
 ```
 
 ### Tests
 To run feature tests:
 ```
-./ged_parser.py test
+python ged_parser.py test
 ```
 
 ### Current Features
