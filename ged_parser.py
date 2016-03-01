@@ -86,8 +86,8 @@ class Individual(object):
         self.sex = None  # Sex of individual (M or F)
         self.birthdate = None  # Birth date of individual
         self.death = None  # Date of death of individual
-        self.famc = None  # Family where individual is a child
-        self.fams = None  # Family where individual is spouse
+        self.famc = []  # Family where individual is a child
+        self.fams = []  # Family where individual is spouse
 
 
 class Family(object):
@@ -99,7 +99,7 @@ class Family(object):
         self.marriage = None  # marriage event for family
         self.husband = None  # pointer for husband in family
         self.wife = None  # pointer for wife in family
-        self.child = None  # pointer for child in family
+        self.children = []  # pointer for child in family
         self.divorce = None  # divorce event in family
 
 ## MAIN FUNCTION GOES HERE
@@ -159,7 +159,7 @@ def summary(individuals, families):
                 wife_name = indiv.name
         print '{:6s} {:20s} {:20s} {:10.10s} {:10.10s} {}'\
         .format(family.uid, ' '.join(husband_name),' '.join(wife_name), \
-        str(family.marriage), str(family.divorce), '0')
+        str(family.marriage), str(family.divorce), len(family.children))
     print "\n\n"
 
 
@@ -202,28 +202,28 @@ def dates_before_current(individuals, families):
     # date of birth, death, marriage, or divorce must be before current date
     for family in families:
         if family.marriage and family.marriage > now:
-            error_string = "Marriage occurs after current date"
+            error_descrip = "Marriage occurs after current date"
             error_location = [family.uid, family.husband, family.wife]
-            print_error(error_type, error_string, error_location)
+            print_error(error_type, error_descrip, error_location)
             return_flag = False
 
         if family.divorce and family.divorce > now:
-            error_string = "Divorce occurs after current date"
+            error_descrip = "Divorce occurs after current date"
             error_location = [family.uid, family.husband, family.wife]
-            print_error(error_type, error_string, error_location)
+            print_error(error_type, error_descrip, error_location)
             return_flag = False
 
     for indiv in individuals:
         if indiv.birthdate and indiv.birthdate > now:
-            error_string = "Birth occurs after current date"
+            error_descrip = "Birth occurs after current date"
             error_location = [indiv.uid]
-            print_error(error_type, error_string, error_location)
+            print_error(error_type, error_descrip, error_location)
             return_flag = False
 
         if indiv.death and indiv.death > now:
-            error_string = "Death occurs after current date"
+            error_descrip = "Death occurs after current date"
             error_location = [indiv.uid]
-            print_error(error_type, error_string, error_location)
+            print_error(error_type, error_descrip, error_location)
             return_flag = False
 
     return return_flag
@@ -248,15 +248,15 @@ def birth_before_marriage(individuals, families):
 
             if wife.birthdate and wife.birthdate > family.marriage:
                 # Found a case spouse marries before birthday
-                error_string = "Birth of wife occurs after marriage"
+                error_descrip = "Birth of wife occurs after marriage"
                 error_location = [wife.uid]
-                print_error(error_type, error_string, error_location)
+                print_error(error_type, error_descrip, error_location)
                 return_flag = False
 
             if husband.birthdate and husband.birthdate > family.marriage:
-                error_string = "Birth of husband occurs after marraige"
+                error_descrip = "Birth of husband occurs after marraige"
                 error_location = [husband.uid]
-                print_error(error_type, error_string, error_location)
+                print_error(error_type, error_descrip, error_location)
                 return_flag = False
 
     return return_flag
@@ -269,9 +269,9 @@ def birth_before_death(individuals):
     for individual in individuals:
         if individual.death and individual.birthdate:
             if individual.death < individual.birthdate:
-                error_string = "Birth occurs before death."
+                error_descrip = "Birth occurs before death."
                 error_location = [individual.uid]
-                print_error(error_type, error_string, error_location)
+                print_error(error_type, error_descrip, error_location)
                 return_flag = False
     return return_flag
 
@@ -285,9 +285,9 @@ def marriage_before_divorce(families):
         # Check if family has marriage and divorce dates
         if family.marriage and family.divorce:
             if family.marriage > family.divorce:
-                error_string = "Marriage occurs after divorce"
+                error_descrip = "Marriage occurs after divorce"
                 error_location = [family.uid, family.husband, family.wife]
-                print_error(error_type, error_string, error_location)
+                print_error(error_type, error_descrip, error_location)
                 return_flag = False
     return return_flag
 
@@ -308,14 +308,14 @@ def marriage_before_death(individuals, families):
                 if indiv.uid == family.wife:
                     wife = indiv
             if wife.death is not None and family.marriage > wife.death:
-                error_string = "Marriage occurs after death of wife"
+                error_descrip = "Marriage occurs after death of wife"
                 error_location = [family.uid, wife.uid]
-                print_error(error_type, error_string, error_location)
+                print_error(error_type, error_descrip, error_location)
                 return_flag = False
             if husband.death is not None and family.marriage > husband.death:
-                error_string = "Marriage occurs after death of husband"
+                error_descrip = "Marriage occurs after death of husband"
                 error_location = [family.uid, husband.uid]
-                print_error(error_type, error_string, error_location)
+                print_error(error_type, error_descrip, error_location)
                 return_flag = False
     return return_flag
 
@@ -337,16 +337,41 @@ def divorce_before_death(individuals, families):
 
             # Found a case where spouse death before divorce
             if wife.death is not None and family.divorce > wife.death:
-                error_string = "Divorce occurs after death of wife"
+                error_descrip = "Divorce occurs after death of wife"
                 error_location = [family.uid, wife.uid]
-                print_error(error_type, error_string, error_location)
+                print_error(error_type, error_descrip, error_location)
                 return_flag = False
             if husband.death is not None and family.divorce > husband.death:
-                error_string = "Divorce occurs after death of husband"
+                error_descrip = "Divorce occurs after death of husband"
                 error_location = [family.uid, husband.uid]
-                print_error(error_type, error_string, error_location)
+                print_error(error_type, error_descrip, error_location)
                 return_flag = False
     return return_flag
+
+def no_bigamy(families, individuals):
+    """ US11 - Marriage should not occur during marriage to another spouse -
+        ANOMALY
+    """
+        #for each fams check for divorce or death prior to next fam
+    anom_type = "US11"
+    return_flag = True
+
+    if (1):
+        anom_description = "Married to more than one individual at a time"
+        anom_location = "l"
+        print_anomaly(anom_type, anom_description, anom_location)
+        return_flag = False
+
+    return return_flag
+
+def parents_not_too_old(families, individuals):
+    """ US12 - Mother should be less than 60 years older than her
+    children and father should be less than 80 years older than his children -
+    ANOMALY
+    """
+
+    pass
+
 
 # GEDCOM PARSING
 # ---------------------------
@@ -395,9 +420,9 @@ def parse_single_individual(gedlist, index, xref):
         if gedline.tag == "DEAT":
             date_type = "DEAT"
         if gedline.tag == "FAMC":
-            indiv.famc = gedline.args[0]
+            indiv.famc.append(gedline.args[0])
         if gedline.tag == "FAMS":
-            indiv.fams = gedline.args[0]
+            indiv.fams.append(gedline.args[0])
 
         # This assumes the following date tag corresponds to prev tag
         if gedline.tag == "DATE":
@@ -441,7 +466,7 @@ def parse_single_family(gedlist, index, xref):
         if gedline.tag == "WIFE":
             family.wife = gedline.args[0]
         if gedline.tag == "CHIL":
-            family.child = gedline.args[0]
+            family.children.append(gedline.args[0])
 
         # This assumes the following date tag corresponds to prev tag
         if gedline.tag == "DATE":
