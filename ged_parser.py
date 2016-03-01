@@ -125,14 +125,15 @@ def main():
     validation(individuals, families)
     print "\nDone!"
 
-def summary(individuals,families):
+def summary(individuals, families):
     """ Prints a summary of the GEDCOM file """
 
     individuals.sort(key=operator.attrgetter('int_id'))
     families.sort(key=operator.attrgetter('int_id'))
 
-
-    print 'Individuals:\n'
+    print "\n"
+    print 'INDIVIDUALS'.center(80,' ')
+    print "\n"
     print '{:6s} {:20s} {:5s} {:10s}     {:10s}'\
         .format('ID', 'Individual Name', 'Sex', 'Birthdate', 'Deathdate')
     print '-' * 80
@@ -141,10 +142,12 @@ def summary(individuals,families):
         .format(indiv.uid, ' '.join(indiv.name), indiv.sex, \
         str(indiv.birthdate), str(indiv.death))
 
-    print '\n\nFamilies:\n'
+    print "\n\n"
+    print 'FAMILIES'.center(80,' ')
+    print "\n"
     print '{:6s} {:20s} {:20s} {:10.10s} {:10.10s} {}'\
         .format('ID', 'Husband', 'Wife', 'M-Date', 'D-Date',\
-         '# Children')
+         '# Child')
     print '-' * 80
     for family in families:
         husband_name = None
@@ -155,7 +158,7 @@ def summary(individuals,families):
             if family.wife == indiv.uid:
                 wife_name = indiv.name
         print '{:6s} {:20s} {:20s} {:10.10s} {:10.10s} {}'\
-        .format(family.uid, ' '.join(husband_name),' '.join(wife_name),\
+        .format(family.uid, ' '.join(husband_name),' '.join(wife_name), \
         str(family.marriage), str(family.divorce), '0')
     print "\n\n"
 
@@ -165,7 +168,8 @@ def summary(individuals,families):
 def validation(individuals, families):
     """ Validation check to run all user stories """
 
-    print "Error/Anom:     Description:                                       "\
+    print "ERRORS/ANOMALIES".center(80,' ')
+    print "\nError/Anom:     Description:                                       "\
     "     Location"
     print '-' * 80
 
@@ -179,41 +183,47 @@ def validation(individuals, families):
 
     # Sprint 2
 
+def print_error(etype, description, location):
+    estr = 'ERROR {:5.5s}     {:55.55s} {}'\
+        .format(etype, description, ','.join(location))
+    print estr
+
+def print_anomaly(atype, description, location):
+    astr = 'ANOMALY {:5.5s}     {:53.53s} {}'\
+        .format(atype, description, ','.join(location))
+    print astr
+
+
 def dates_before_current(individuals, families):
     """ US01 All dates must be before the current date - ERROR"""
 
     return_flag = True
+    error_type = "US01"
     # date of birth, death, marriage, or divorce must be before current date
     for family in families:
         if family.marriage and family.marriage > now:
-            error_string = "ERROR US101:    Marriage occurs after current date"
-            error_location = ("({},{},{})"\
-                .format(family.uid, family.husband, family.wife))\
-                .rjust(PADDING-len(error_string))
-            print  error_string + error_location
+            error_string = "Marriage occurs after current date"
+            error_location = [family.uid, family.husband, family.wife]
+            print_error(error_type, error_string, error_location)
             return_flag = False
 
         if family.divorce and family.divorce > now:
-            error_string = "ERROR US101:    Divorce occurs after current date"
-            error_location = ("({},{},{})"\
-                .format(family.uid, family.husband, family.wife))\
-                .rjust(PADDING-len(error_string))
-            print  error_string + error_location
+            error_string = "Divorce occurs after current date"
+            error_location = [family.uid, family.husband, family.wife]
+            print_error(error_type, error_string, error_location)
             return_flag = False
 
     for indiv in individuals:
         if indiv.birthdate and indiv.birthdate > now:
-            error_string = "ERROR US101:    Birth occurs after current date"
-            error_location = ("({})".format(indiv.uid))\
-                .rjust(PADDING-len(error_string))
-            print  error_string + error_location
+            error_string = "Birth occurs after current date"
+            error_location = [indiv.uid]
+            print_error(error_type, error_string, error_location)
             return_flag = False
 
         if indiv.death and indiv.death > now:
-            error_string = "ERROR US101:    Death occurs after current date"
-            error_location = ("({})".format(indiv.uid))\
-                .rjust(PADDING-len(error_string))
-            print  error_string + error_location
+            error_string = "Death occurs after current date"
+            error_location = [indiv.uid]
+            print_error(error_type, error_string, error_location)
             return_flag = False
 
     return return_flag
@@ -224,6 +234,7 @@ def birth_before_marriage(individuals, families):
 
     # For each individual check if birth occurs before marriage
     return_flag = True
+    error_type = "US02"
     for family in families:
         if family.marriage:
             # Search through individuals to get husband and wife
@@ -237,17 +248,15 @@ def birth_before_marriage(individuals, families):
 
             if wife.birthdate and wife.birthdate > family.marriage:
                 # Found a case spouse marries before birthday
-                error_string = "ERROR US02:     Birth of wife occurs after marriage"
-                error_location = ("({})".format(wife.uid))\
-                    .rjust(PADDING-len(error_string))
-                print  error_string + error_location
+                error_string = "Birth of wife occurs after marriage"
+                error_location = [wife.uid]
+                print_error(error_type, error_string, error_location)
                 return_flag = False
 
             if husband.birthdate and husband.birthdate > family.marriage:
-                error_string = "ERROR US02:     Birth of husband occurs after marraige"
-                error_location = ("({})".format(husband.uid))\
-                    .rjust(PADDING-len(error_string))
-                print  error_string + error_location
+                error_string = "Birth of husband occurs after marraige"
+                error_location = [husband.uid]
+                print_error(error_type, error_string, error_location)
                 return_flag = False
 
     return return_flag
@@ -256,13 +265,13 @@ def birth_before_death(individuals):
     """ US03 - Birth should occur before death of an individual - ERROR"""
     # For each individual check if death occurs before death
     return_flag = True
+    error_type = "US03"
     for individual in individuals:
         if individual.death and individual.birthdate:
             if individual.death < individual.birthdate:
-                error_string = "ERROR US03:     Birth occurs before death."
-                error_location = ("({})".format(individual.uid))\
-                    .rjust(PADDING-len(error_string))
-                print  error_string + error_location
+                error_string = "Birth occurs before death."
+                error_location = [individual.uid]
+                print_error(error_type, error_string, error_location)
                 return_flag = False
     return return_flag
 
@@ -271,15 +280,14 @@ def marriage_before_divorce(families):
 
     # Search though the families
     return_flag = True
+    error_type = "US04"
     for family in families:
         # Check if family has marriage and divorce dates
         if family.marriage and family.divorce:
             if family.marriage > family.divorce:
-                error_string = "ERROR US04:     Marriage occurs after divorce"
-                error_location = ("({},{},{})"\
-                    .format(family.uid, family.husband, family.wife))\
-                    .rjust(PADDING-len(error_string))
-                print  error_string + error_location
+                error_string = "Marriage occurs after divorce"
+                error_location = [family.uid, family.husband, family.wife]
+                print_error(error_type, error_string, error_location)
                 return_flag = False
     return return_flag
 
@@ -287,6 +295,7 @@ def marriage_before_death(individuals, families):
     """ US05 - Marriage should occur before death of either spouse - ERROR"""
 
     # For each family find spouses IDs
+    error_type = "US05"
     return_flag = True
     for family in families:
         if family.marriage:
@@ -299,16 +308,14 @@ def marriage_before_death(individuals, families):
                 if indiv.uid == family.wife:
                     wife = indiv
             if wife.death is not None and family.marriage > wife.death:
-                error_string = "ERROR US05:     Marriage occurs after death of wife"
-                error_location = ("({},{})".format(family.uid, wife.uid))\
-                    .rjust(PADDING-len(error_string))
-                print  error_string + error_location
+                error_string = "Marriage occurs after death of wife"
+                error_location = [family.uid, wife.uid]
+                print_error(error_type, error_string, error_location)
                 return_flag = False
             if husband.death is not None and family.marriage > husband.death:
-                error_string = "ERROR US05:     Marriage occurs after death of husband"
-                error_location = ("({},{})".format(family.uid, husband.uid))\
-                    .rjust(PADDING-len(error_string))
-                print  error_string + error_location
+                error_string = "Marriage occurs after death of husband"
+                error_location = [family.uid, husband.uid]
+                print_error(error_type, error_string, error_location)
                 return_flag = False
     return return_flag
 
@@ -316,6 +323,7 @@ def divorce_before_death(individuals, families):
     """ US06 - Divorce should occur before death of either spouse - ERROR"""
 
     return_flag = True
+    error_type = "US06"
     for family in families:
         if family.divorce:
             # Search through individuals to get husband and wife
@@ -329,16 +337,14 @@ def divorce_before_death(individuals, families):
 
             # Found a case where spouse death before divorce
             if wife.death is not None and family.divorce > wife.death:
-                error_string = "ERROR US06:     Divorce occurs after death of wife"
-                error_location = ("{},{})".format(family.uid, wife.uid))\
-                    .rjust(PADDING-len(error_string))
-                print  error_string + error_location
+                error_string = "Divorce occurs after death of wife"
+                error_location = [family.uid, wife.uid]
+                print_error(error_type, error_string, error_location)
                 return_flag = False
             if husband.death is not None and family.divorce > husband.death:
-                error_string = "ERROR US06:     Divorce occurs after death of husband"
-                error_location = ("({},{})".format(family.uid, husband.uid))\
-                    .rjust(PADDING-len(error_string))
-                print  error_string + error_location
+                error_string = "Divorce occurs after death of husband"
+                error_location = [family.uid, husband.uid]
+                print_error(error_type, error_string, error_location)
                 return_flag = False
     return return_flag
 
