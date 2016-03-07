@@ -18,7 +18,7 @@ import sys
 import re
 import operator
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 import unittest
 
 FILENAME = 'default_ged.ged'
@@ -348,6 +348,69 @@ def divorce_before_death(individuals, families):
                 return_flag = False
     return return_flag
 
+def birth_before_death_of_parents(individuals, families):
+    """ US09 - Birth should occur before the death of parents """
+    return_flag = True
+    error_type = "US09"
+    anom_type = "US09"
+
+    # Loop through individuals to compare their brithdate
+    # with the death date of their parents
+    for individual in individuals:
+
+        # Some individuals do not have parents defined
+        # if they are the oldest generation in the gedcom file,
+        # so check if individual.famc has elements before proceeding
+        if len(individual.famc) > 0:
+            father = None
+            father_id = None
+            mother = None
+            mother_id = None
+
+            # Get the UID of parents for an individual
+            for family in families:
+                if family.uid == individual.famc[0]:
+                    father_id = family.husband
+                    mother_id = family.wife
+                    break
+
+            # Get reference to Father and Mother objects
+            # based on their UID
+            for ind in individuals:
+                if ind.uid == father_id:
+                    father = ind
+                if ind.uid == mother_id:
+                    mother = ind
+
+            # Case when father dies more than 9 months before
+            # birth of child. This is an error.
+            if father.death is not None and \
+                father.death < individual.birthdate - timedelta(days=266):
+                error_description = "Child is born more than " +\
+                    "9 months after death of father"
+                error_location = [family.uid, individual.uid]
+                print_error(error_type, error_description, error_location)
+                return_flag = False
+
+            # Case when father dies less than 9 months before
+            # birth of child. This is an anomaly.
+            elif father.death is not None and \
+                father.death < individual.birthdate:
+                anom_description = "Child is born after death of father " +\
+                    "but within 9 months of father's death"
+                anom_location = [family.uid, individual.uid]
+                print_anomaly(anom_type, anom_description, anom_location)
+                return_flag = False
+
+            # Case when mother dies before birth of child.
+            # This is impossible.
+            if mother.death is not None and mother.death < individual.birthdate:
+                error_descrip = "Child is born after death of mother"
+                error_location = [family.uid, individual.uid]
+                print_error(error_type, error_descrip, error_location)
+                return_flag = False
+    return return_flag
+
 def no_bigamy(families, individuals):
     """ US11 - Marriage should not occur during marriage to another spouse -
         ANOMALY
@@ -573,6 +636,28 @@ class TestParser(unittest.TestCase):
             self.assertFalse(marriage_before_divorce(families))
         else:
             print "!!marriage_before_divorce acceptance file not found\n\n"
+
+    def test_birth_before_death_of_parents(self):
+        # First load acceptance file
+        fail_file_father_anomaly = "acceptance_files/fail/birth_before_death" \
+            + "_of_parents_FATHER_anomaly.ged"
+        fail_file_father_error = "acceptance_files/fail/birth_before_death" \
+            + "_of_parents_FATHER_error.ged"
+        fail_file_mother = "acceptance_files/fail/birth_before_death" \
+            +"_of_parents_MOTHER.ged"
+        pass_file = "acceptance_files/pass/birth_before_death_of_parents.ged"
+
+        if os.path.exists(pass_file):
+            individuals, families = parse_ged(pass_file)
+            self.assertTrue(birth_before_death_of_parents(individuals, families))
+            individuals, families = parse_ged(fail_file_father_anomaly)
+            self.assertFalse(birth_before_death_of_parents(individuals, families))
+            individuals, families = parse_ged(fail_file_father_error)
+            self.assertFalse(birth_before_death_of_parents(individuals, families))
+            individuals, families = parse_ged(fail_file_mother)
+            self.assertFalse(birth_before_death_of_parents(individuals, families))
+        else:
+            print "!!birth_before_death_of_parents acceptance file not found\n\n"
 
 if __name__ == '__main__':
     main()
