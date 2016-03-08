@@ -112,8 +112,11 @@ def main():
     if len(sys.argv) > 1:
         if sys.argv[1] == 'test':
             suite = unittest.TestLoader().loadTestsFromTestCase(TestParser)
-            unittest.TextTestRunner(verbosity=1).run(suite)
-            exit()
+            if unittest.TextTestRunner(verbosity=1).run(suite).failures:
+                exit(-1)
+            else:
+                exit()
+
         else:
             path = sys.argv[1]
             if os.path.exists(path):
