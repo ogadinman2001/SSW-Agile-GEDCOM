@@ -569,7 +569,7 @@ class TestParser(unittest.TestCase):
 
         if os.path.exists(fail_file) and os.path.exists(pass_file):
             individuals, families = parse_ged(pass_file)
-            self.assertFalse(dates_before_current(individuals, families))
+            self.assertTrue(dates_before_current(individuals, families))
             individuals, families = parse_ged(fail_file)
             self.assertFalse(dates_before_current(individuals, families))
         else:
