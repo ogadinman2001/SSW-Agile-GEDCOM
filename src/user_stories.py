@@ -4,6 +4,7 @@
 """
 
 from datetime import datetime, timedelta
+import collections
 
 error_locations = []
 anomaly_locations = []
@@ -26,6 +27,7 @@ def validation(individuals, families):
 
     # Sprint 2
     parents_not_too_old(individuals, families)
+    no_bigamy(individuals, families)
 
 def report_error(etype, description, location):
     """ Reports an error to console """
@@ -265,16 +267,50 @@ def birth_before_death_of_parents(individuals, families):
                 return_flag = False
     return return_flag
 
-def no_bigamy(families, individuals):
+def no_bigamy(individuals, families):
     """ US11 - Marriage should not occur during marriage to another spouse -
         ANOMALY
     """
-    #     #for each fams check for divorce or death prior to next fam
-    # anom_type = "US11"
-    # return_flag = True
-    #
-    # return return_flag
-    pass
+         #for each fams check for divorce or death prior to next fam
+    anom_type = "US11"
+    return_flag = True
+
+    for family in families:
+        #check if husband is in any other families
+        husband_uid = family.husband
+        wife_uid = family.wife
+
+        for fam_compare in families:
+            # Make sure not comparing against self
+            if fam_compare is family:
+                continue
+
+            if fam_compare.husband == husband_uid:
+                if fam_compare.marriage > family.marriage:
+                    wife = next(x for x in individuals if x.uid == family.wife)
+
+                    # Family divorce should occur after or wife should die first
+                    if ((family.divorce < fam_compare.marriage) or \
+                        ((wife.death) and (wife.death < fam_compare.marriage))):
+
+                        anomaly_description="Marriage occured before divorce or death from/of wife"
+                        a_loc = [family.wife, fam_compare.wife, family.husband]
+                        report_anomaly(anom_type,anomaly_description,a_loc)
+                        return_flag = False
+
+            if fam_compare.wife == wife_uid:
+                if fam_compare.marriage > family.marriage:
+                    husb = next(x for x in individuals if x.uid == family.husband)
+
+                    # Family divorce should occur after or wife should die first
+                    if ((family.divorce > fam_compare.marriage) or ((husb.death) and (husb.death < family.marriage))):
+                        anomaly_description=\
+                        "Marriage occured before divorce or death from/of husband"
+                        a_loc = [family.husband, fam_compare.husband, family.wife]
+                        report_anomaly(anom_type,anomaly_description,a_loc)
+                        return_flag = False
+    return return_flag
+
 
 def parents_not_too_old(individuals, families):
     """ US12 - Mother should be less than 60 years older than her
