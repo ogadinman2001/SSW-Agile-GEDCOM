@@ -51,6 +51,13 @@ To run feature tests:
 ```
 python run.py test
 ```
+## Visualization Sample:
+* Couples will have the same colors
+* Anomalies will show up as orange octagons
+* Errors will show up as red octagons
+
+![Sample Visualization](/imgs/sample_tree.svg)
+
 
 ## Current Features
 | Story ID | Story Name                | Owner |
