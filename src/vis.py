@@ -4,7 +4,7 @@ COLORS = ["yellow", "green", "blue", "violet"]
 
 def graph_family(families, individuals, errors=None, anomalies=None):
     cid=0
-    g1 = gv.Graph('Family Tree2', strict=True)
+    g1 = gv.Graph('Family Tree2', strict=True, format='svg')
     g1.node_attr.update(color='lightblue2', style='filled')
 
     # Add node for every individual
