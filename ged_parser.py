@@ -20,6 +20,7 @@ import operator
 import os
 from datetime import datetime, timedelta
 import unittest
+import ged_vis
 
 FILENAME = 'default_ged.ged'
 PADDING = 80
@@ -29,6 +30,9 @@ VALID_TAGS = ['INDI', 'NAME', 'SEX', 'BIRT', 'DEAT', 'FAMC', 'FAMS', 'FAM',
               'NOTE']
 
 now = datetime.now()
+
+error_locations = []
+anomaly_locations = []
 
 ## CLASSES (GEDLINE, FAMILY, INDIVIDUAL)
 ## ------------------------------------------------------------------
@@ -108,6 +112,8 @@ class Family(object):
 def main():
     """ Main function for parsing of GEDCOM"""
 
+    graphing_flag = 0 # @TODO: Gardner implement this flag with argparse
+
     # Allow for arguments to be passed for filename
     if len(sys.argv) > 1:
         if sys.argv[1] == 'test':
@@ -126,6 +132,10 @@ def main():
 
     summary(individuals, families)
     validation(individuals, families)
+
+    if (graphing_flag):
+        ged_vis.graph_family(families, individuals, errors=error_locations, anomalies=anomaly_locations)
+
     print "\nDone!"
 
 def summary(individuals, families):
@@ -165,7 +175,6 @@ def summary(individuals, families):
         str(family.marriage), str(family.divorce), len(family.children))
     print "\n\n"
 
-
 # USER STORIES / VALIDATION
 #--------------------------------------------------
 def validation(individuals, families):
@@ -189,11 +198,15 @@ def validation(individuals, families):
 def print_error(etype, description, location):
     estr = 'ERROR {:5.5s}     {:55.55s} {}'\
         .format(etype, description, ','.join(location))
+    for loc in location:
+        error_locations.append(loc)
     print estr
 
 def print_anomaly(atype, description, location):
     astr = 'ANOMALY {:5.5s}     {:53.53s} {}'\
         .format(atype, description, ','.join(location))
+    for loc in location:
+        anomaly_locations.append(loc)
     print astr
 
 
