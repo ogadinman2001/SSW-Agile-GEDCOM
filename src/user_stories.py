@@ -1,7 +1,9 @@
+""" Python module for parsing GEDCOM geneaology files - user stories
+
+    This file provides the user stories for the GEDCOM parsing project
+"""
+
 from datetime import datetime, timedelta
-
-
-now = datetime.now()
 
 error_locations = []
 anomaly_locations = []
@@ -9,7 +11,7 @@ anomaly_locations = []
 def validation(individuals, families):
     """ Validation check to run all user stories """
 
-    print "ERRORS/ANOMALIES".center(80,' ')
+    print "ERRORS/ANOMALIES".center(80, ' ')
     print "\nError/Anom:     Description:                                       "\
     "     Location"
     print '-' * 80
@@ -26,6 +28,8 @@ def validation(individuals, families):
     parents_not_too_old(individuals, families)
 
 def report_error(etype, description, location):
+    """ Reports an error to console """
+
     estr = 'ERROR {:5.5s}     {:55.55s} {}'\
         .format(etype, description, ','.join(location))
     for loc in location:
@@ -33,6 +37,8 @@ def report_error(etype, description, location):
     print estr
 
 def report_anomaly(atype, description, location):
+    """ Reports an anomaly to console """
+
     astr = 'ANOMALY {:5.5s}     {:53.53s} {}'\
         .format(atype, description, ','.join(location))
     for loc in location:
@@ -49,26 +55,26 @@ def dates_before_current(individuals, families):
     error_type = "US01"
     # date of birth, death, marriage, or divorce must be before current date
     for family in families:
-        if family.marriage and family.marriage > now:
+        if family.marriage and family.marriage > datetime.now():
             error_descrip = "Marriage occurs after current date"
             error_location = [family.uid, family.husband, family.wife]
             report_error(error_type, error_descrip, error_location)
             return_flag = False
 
-        if family.divorce and family.divorce > now:
+        if family.divorce and family.divorce > datetime.now():
             error_descrip = "Divorce occurs after current date"
             error_location = [family.uid, family.husband, family.wife]
             report_error(error_type, error_descrip, error_location)
             return_flag = False
 
     for indiv in individuals:
-        if indiv.birthdate and indiv.birthdate > now:
+        if indiv.birthdate and indiv.birthdate > datetime.now():
             error_descrip = "Birth occurs after current date"
             error_location = [indiv.uid]
             report_error(error_type, error_descrip, error_location)
             return_flag = False
 
-        if indiv.death and indiv.death > now:
+        if indiv.death and indiv.death > datetime.now():
             error_descrip = "Death occurs after current date"
             error_location = [indiv.uid]
             report_error(error_type, error_descrip, error_location)
@@ -263,17 +269,12 @@ def no_bigamy(families, individuals):
     """ US11 - Marriage should not occur during marriage to another spouse -
         ANOMALY
     """
-        #for each fams check for divorce or death prior to next fam
-    anom_type = "US11"
-    return_flag = True
-
-    if (1):
-        anom_description = "Married to more than one individual at a time"
-        anom_location = "l"
-        report_anomaly(anom_type, anom_description, anom_location)
-        return_flag = False
-
-    return return_flag
+    #     #for each fams check for divorce or death prior to next fam
+    # anom_type = "US11"
+    # return_flag = True
+    #
+    # return return_flag
+    pass
 
 def parents_not_too_old(individuals, families):
     """ US12 - Mother should be less than 60 years older than her

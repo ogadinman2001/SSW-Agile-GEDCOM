@@ -1,13 +1,24 @@
+""" Python module for parsing GEDCOM geneaology files - unit tests
+
+    This file provides the unit tests for the GEDCOM parsing project
+"""
+
 import unittest
 import os
 from parser import parse_ged
-from user_stories import *
+
+# Add user stories after creation of test
+from user_stories import dates_before_current, birth_before_marriage, \
+    birth_before_death, marriage_before_divorce, marriage_before_death, \
+    divorce_before_death, birth_before_death_of_parents, parents_not_too_old
+
 
 class TestParser(unittest.TestCase):
     """ Unit tests to verift unit stories"""
 
     def test_dates_before_current(self):
-        # First load acceptance file
+        """ Unit test for dates_before_current"""
+
         fail_file = "acceptance_files/fail/date_before_current.ged"
         pass_file = "acceptance_files/pass/date_before_current.ged"
 
@@ -20,7 +31,8 @@ class TestParser(unittest.TestCase):
             print "!!test_date_before_current acceptance file not found\n\n"
 
     def test_birth_before_marriage(self):
-        # First load acceptance file
+        """ Unit test for birth_before_marriage"""
+
         fail_file = "acceptance_files/fail/birth_before_marriage.ged"
         pass_file = "acceptance_files/pass/birth_before_marriage.ged"
 
@@ -33,7 +45,8 @@ class TestParser(unittest.TestCase):
             print "!!test_marriage_before_death acceptance file not found\n\n"
 
     def test_marriage_before_death(self):
-        # First load acceptance file
+        """ Unit test for marriage_before_death """
+
         fail_file = "acceptance_files/fail/marriage_before_death.ged"
         pass_file = "acceptance_files/pass/marriage_before_death.ged"
 
@@ -46,7 +59,8 @@ class TestParser(unittest.TestCase):
             print "!!test_marriage_before_death acceptance file not found\n\n"
 
     def test_divorce_before_death(self):
-        # First load acceptance file
+        """ Unit test for divorce_before_death """
+
         fail_file = "acceptance_files/fail/divorce_before_death.ged"
         pass_file = "acceptance_files/pass/divorce_before_death.ged"
 
@@ -59,7 +73,8 @@ class TestParser(unittest.TestCase):
             print "!!test_divorce_before_death acceptance file not found\n\n"
 
     def test_birth_before_death(self):
-        #First load acceptance file
+        """ Unit test for birth_before_death """
+
         fail_file = "acceptance_files/fail/birth_before_death.ged"
         pass_file = "acceptance_files/pass/birth_before_death.ged"
 
@@ -72,7 +87,8 @@ class TestParser(unittest.TestCase):
             print "!!test_birth_before_death acceptance file not found\n\n"
 
     def test_marriage_before_divorce(self):
-        #First load acceptance file
+        """ Unit test for marriage_before_divorce """
+
         fail_file = "acceptance_files/fail/marriage_before_divorce.ged"
         pass_file = "acceptance_files/pass/marriage_before_divorce.ged"
 
@@ -85,7 +101,8 @@ class TestParser(unittest.TestCase):
             print "!!marriage_before_divorce acceptance file not found\n\n"
 
     def test_birth_before_death_of_parents(self):
-        # First load acceptance file
+        """ Unit test for birth birth_before_death_of_parents"""
+
         fail_file_father_anomaly = "acceptance_files/fail/birth_before_death" \
             + "_of_parents_FATHER_anomaly.ged"
         fail_file_father_error = "acceptance_files/fail/birth_before_death" \
@@ -107,6 +124,8 @@ class TestParser(unittest.TestCase):
             print "!!birth_before_death_of_parents acceptance file not found\n\n"
 
     def test_parents_not_too_old(self):
+        """ Unit test for test_parents_not_too_old """
+
         fail_file = "acceptance_files/fail/parents_not_too_old.ged"
         pass_file = "acceptance_files/pass/parents_not_too_old.ged"
 

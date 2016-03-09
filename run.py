@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" Python module for parsing GEDCOM geneaology files
+""" Python module for parsing GEDCOM geneaology files - main file
 
     This is a command-line program used to discover errors and anomalies in
     GEDCOM geanealogy files. This was developed for the Stevens Graduate
@@ -7,8 +7,11 @@
     as an exercise in Extreme Programming and Scrum methods.
 
     Currently reads a) default_ged.ged from local directory, b) a passed GEDCOM
-    file, or c) runs the tests on the acceptance tests. After reading in a file
-    the GEDCOM is parsed and scanned for errors using our verification features.
+    file, or c) runs the tests on the acceptance tests.
+
+    After reading in a file the GEDCOM is parsed, summarized, and scanned for
+    errors using our verification features. If the Visualization flag is set
+    a graph is saved in the local director.
 """
 
 __author__ = "Rick Housley, Bryan Gardner, Michael McCarthy"
@@ -20,9 +23,9 @@ import os
 import unittest
 
 # Project imports
-from parser import parse_ged
-from user_stories import validation, anomaly_locations, error_locations
-from unit_tests import TestParser
+from src.parser import parse_ged
+from src.user_stories import validation, anomaly_locations, error_locations
+from src.unit_tests import TestParser
 
 FILENAME = 'default_ged.ged'
 
@@ -58,8 +61,8 @@ def main():
     if graphing_flag:
         try:
             # Do import here to prevent import error on new systems
-            import ged_vis
-            ged_vis.graph_family(families, individuals, \
+            from src.vis import graph_family
+            graph_family(families, individuals, \
                 errors=error_locations, anomalies=anomaly_locations)
 
         except ImportError:
@@ -68,6 +71,7 @@ def main():
     print "\nDone!"
     exit()
 
+
 def summary(individuals, families):
     """ Prints a summary of the GEDCOM file """
 
@@ -75,7 +79,7 @@ def summary(individuals, families):
     families.sort(key=operator.attrgetter('int_id'))
 
     print "\n"
-    print 'INDIVIDUALS'.center(80,' ')
+    print 'INDIVIDUALS'.center(80, ' ')
     print "\n"
     print '{:6s} {:20s} {:5s} {:10s}     {:10s}'\
         .format('ID', 'Individual Name', 'Sex', 'Birthdate', 'Deathdate')
@@ -86,7 +90,7 @@ def summary(individuals, families):
         str(indiv.birthdate), str(indiv.death))
 
     print "\n\n"
-    print 'FAMILIES'.center(80,' ')
+    print 'FAMILIES'.center(80, ' ')
     print "\n"
     print '{:6s} {:20s} {:20s} {:10.10s} {:10.10s} {}'\
         .format('ID', 'Husband', 'Wife', 'M-Date', 'D-Date',\
@@ -101,7 +105,7 @@ def summary(individuals, families):
             if family.wife == indiv.uid:
                 wife_name = indiv.name
         print '{:6s} {:20s} {:20s} {:10.10s} {:10.10s} {}'\
-        .format(family.uid, ' '.join(husband_name),' '.join(wife_name), \
+        .format(family.uid, ' '.join(husband_name), ' '.join(wife_name), \
         str(family.marriage), str(family.divorce), len(family.children))
     print "\n\n"
 

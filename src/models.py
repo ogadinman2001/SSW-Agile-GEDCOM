@@ -1,3 +1,8 @@
+""" Python module for parsing GEDCOM geneaology files - user stories
+
+    This file provides the class models for the GEDCOM parsing projec
+"""
+
 import re
 
 VALID_TAGS = ['INDI', 'NAME', 'SEX', 'BIRT', 'DEAT', 'FAMC', 'FAMS', 'FAM',
