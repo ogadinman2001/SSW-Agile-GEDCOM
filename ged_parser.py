@@ -198,6 +198,7 @@ def validation(individuals, families):
     divorce_before_death(individuals, families)
 
     # Sprint 2
+    parents_not_too_old(individuals, families)
 
 def report_error(etype, description, location):
     estr = 'ERROR {:5.5s}     {:55.55s} {}'\
@@ -447,13 +448,48 @@ def no_bigamy(families, individuals):
 
     return return_flag
 
-def parents_not_too_old(families, individuals):
+def parents_not_too_old(individuals, families):
     """ US12 - Mother should be less than 60 years older than her
     children and father should be less than 80 years older than his children -
     ANOMALY
     """
 
-    pass
+    anom_type = "US12"
+    return_flag = True
+    DAYS_IN_60_YEARS = 21900
+    DAYS_IN_80_YEARS = 29200
+
+    # Find all families with children
+    #   (create a list of all fams with non empty children)
+    fams_with_children = [x for x in families if x.children is not []]
+
+    for family in fams_with_children:
+
+        mother = next((x for x in individuals if x.uid == family.wife), None)
+        father = next((x for x in individuals if x.uid == family.husband), None)
+
+        children_uids = family.children
+
+        for child_uid in children_uids:
+            child = next((x for x in individuals if x.uid == child_uid), None)
+
+            if mother and child: #This may be repetitive
+                if (mother.birthdate - child.birthdate) > \
+                        timedelta(DAYS_IN_60_YEARS):
+                    anom_description = "Mother is 60 years older than child"
+                    anom_location = [mother.uid, child.uid]
+                    report_anomaly(anom_type, anom_description, anom_location)
+                    return_flag = False
+
+            if father and child: #This may be repetitive
+                if (mother.birthdate - child.birthdate) > \
+                        timedelta(days=DAYS_IN_80_YEARS):
+                    anom_description = "Father is y0 years older than child"
+                    anom_location = [father.uid, child.uid]
+                    report_anomaly(anom_type, anom_description, anom_location)
+                    return_flag = False
+
+    return return_flag
 
 
 # GEDCOM PARSING
