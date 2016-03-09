@@ -56,7 +56,7 @@ python run.py test
 * Anomalies will show up as orange octagons
 * Errors will show up as red octagons
 
-![Sample Visualization](/imgs/sample_tree.svg)
+![Sample Visualization](/imgs/sample_tree.png)
 
 
 ## Current Features
