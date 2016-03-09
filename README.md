@@ -8,10 +8,31 @@ Currently the program has the ability to
 * Read a default_ged.ged from local directory
 * Read a GEDCOM file passes as an argument
 * Run test criteria
+* Create a visualization with *error highlighting*
 
 Current process:
 Parse -> Summarize -> Validate -/-> Visualize
 (Visualize will only occur if visualize flag is set)
+
+## Installation
+**This is only needed if you want to include the visualization feature!**
+
+Install Python requirements:
+```
+pip install -r requirements.txt
+```
+Install GraphViz binary:
+Fedora:
+```
+sudo dnf install graphviz
+```
+Ubuntu:
+```
+sudo apt-get install graphviz
+```
+Windows:
+
+http://www.graphviz.org/pub/graphviz/stable/windows/graphviz-2.30.1.msi
 
 ## Execution
 
