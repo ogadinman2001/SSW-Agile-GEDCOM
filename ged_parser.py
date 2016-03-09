@@ -473,8 +473,8 @@ def parents_not_too_old(individuals, families):
         for child_uid in children_uids:
             child = next((x for x in individuals if x.uid == child_uid), None)
 
-            if mother and child: #This may be repetitive
-                if (mother.birthdate - child.birthdate) > \
+            if mother and child: #This may be repetitive                
+                if (child.birthdate - mother.birthdate) > \
                         timedelta(DAYS_IN_60_YEARS):
                     anom_description = "Mother is 60 years older than child"
                     anom_location = [mother.uid, child.uid]
@@ -482,9 +482,9 @@ def parents_not_too_old(individuals, families):
                     return_flag = False
 
             if father and child: #This may be repetitive
-                if (mother.birthdate - child.birthdate) > \
+                if (child.birthdate - father.birthdate) > \
                         timedelta(days=DAYS_IN_80_YEARS):
-                    anom_description = "Father is y0 years older than child"
+                    anom_description = "Father is 80 years older than child"
                     anom_location = [father.uid, child.uid]
                     report_anomaly(anom_type, anom_description, anom_location)
                     return_flag = False
@@ -714,6 +714,22 @@ class TestParser(unittest.TestCase):
             self.assertFalse(birth_before_death_of_parents(individuals, families))
         else:
             print "!!birth_before_death_of_parents acceptance file not found\n\n"
+
+    def test_parents_not_too_old(self):
+        fail_file = "acceptance_files/fail/parents_not_too_old.ged"
+        pass_file = "acceptance_files/pass/parents_not_too_old.ged"
+
+        if os.path.exists(pass_file):
+            individuals, families = parse_ged(pass_file)
+            self.assertTrue(parents_not_too_old(individuals, families))
+        else:
+            print "!!parents_not_too_old acceptance file not found"
+
+        if os.path.exists(fail_file):
+            individuals, families = parse_ged(fail_file)
+            self.assertFalse(parents_not_too_old(individuals, families))
+        else:
+            print "!!parents_not_too_old acceptance file not found"
 
 if __name__ == '__main__':
     main()
