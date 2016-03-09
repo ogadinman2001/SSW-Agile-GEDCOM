@@ -20,7 +20,6 @@ import operator
 import os
 from datetime import datetime, timedelta
 import unittest
-import ged_vis
 
 FILENAME = 'default_ged.ged'
 PADDING = 80
@@ -134,7 +133,12 @@ def main():
     validation(individuals, families)
 
     if (graphing_flag):
-        ged_vis.graph_family(families, individuals, errors=error_locations, anomalies=anomaly_locations)
+        try:
+            import ged_vis
+            ged_vis.graph_family(families, individuals, errors=error_locations, anomalies=anomaly_locations)
+        except:
+            print "GraphViz probably not installed!"
+
 
     print "\nDone!"
 
@@ -195,14 +199,14 @@ def validation(individuals, families):
 
     # Sprint 2
 
-def print_error(etype, description, location):
+def report_error(etype, description, location):
     estr = 'ERROR {:5.5s}     {:55.55s} {}'\
         .format(etype, description, ','.join(location))
     for loc in location:
         error_locations.append(loc)
     print estr
 
-def print_anomaly(atype, description, location):
+def report_anomaly(atype, description, location):
     astr = 'ANOMALY {:5.5s}     {:53.53s} {}'\
         .format(atype, description, ','.join(location))
     for loc in location:
@@ -220,26 +224,26 @@ def dates_before_current(individuals, families):
         if family.marriage and family.marriage > now:
             error_descrip = "Marriage occurs after current date"
             error_location = [family.uid, family.husband, family.wife]
-            print_error(error_type, error_descrip, error_location)
+            report_error(error_type, error_descrip, error_location)
             return_flag = False
 
         if family.divorce and family.divorce > now:
             error_descrip = "Divorce occurs after current date"
             error_location = [family.uid, family.husband, family.wife]
-            print_error(error_type, error_descrip, error_location)
+            report_error(error_type, error_descrip, error_location)
             return_flag = False
 
     for indiv in individuals:
         if indiv.birthdate and indiv.birthdate > now:
             error_descrip = "Birth occurs after current date"
             error_location = [indiv.uid]
-            print_error(error_type, error_descrip, error_location)
+            report_error(error_type, error_descrip, error_location)
             return_flag = False
 
         if indiv.death and indiv.death > now:
             error_descrip = "Death occurs after current date"
             error_location = [indiv.uid]
-            print_error(error_type, error_descrip, error_location)
+            report_error(error_type, error_descrip, error_location)
             return_flag = False
 
     return return_flag
@@ -266,13 +270,13 @@ def birth_before_marriage(individuals, families):
                 # Found a case spouse marries before birthday
                 error_descrip = "Birth of wife occurs after marriage"
                 error_location = [wife.uid]
-                print_error(error_type, error_descrip, error_location)
+                report_error(error_type, error_descrip, error_location)
                 return_flag = False
 
             if husband.birthdate and husband.birthdate > family.marriage:
                 error_descrip = "Birth of husband occurs after marraige"
                 error_location = [husband.uid]
-                print_error(error_type, error_descrip, error_location)
+                report_error(error_type, error_descrip, error_location)
                 return_flag = False
 
     return return_flag
@@ -287,7 +291,7 @@ def birth_before_death(individuals):
             if individual.death < individual.birthdate:
                 error_descrip = "Birth occurs before death."
                 error_location = [individual.uid]
-                print_error(error_type, error_descrip, error_location)
+                report_error(error_type, error_descrip, error_location)
                 return_flag = False
     return return_flag
 
@@ -303,7 +307,7 @@ def marriage_before_divorce(families):
             if family.marriage > family.divorce:
                 error_descrip = "Marriage occurs after divorce"
                 error_location = [family.uid, family.husband, family.wife]
-                print_error(error_type, error_descrip, error_location)
+                report_error(error_type, error_descrip, error_location)
                 return_flag = False
     return return_flag
 
@@ -326,12 +330,12 @@ def marriage_before_death(individuals, families):
             if wife.death is not None and family.marriage > wife.death:
                 error_descrip = "Marriage occurs after death of wife"
                 error_location = [family.uid, wife.uid]
-                print_error(error_type, error_descrip, error_location)
+                report_error(error_type, error_descrip, error_location)
                 return_flag = False
             if husband.death is not None and family.marriage > husband.death:
                 error_descrip = "Marriage occurs after death of husband"
                 error_location = [family.uid, husband.uid]
-                print_error(error_type, error_descrip, error_location)
+                report_error(error_type, error_descrip, error_location)
                 return_flag = False
     return return_flag
 
@@ -355,12 +359,12 @@ def divorce_before_death(individuals, families):
             if wife.death is not None and family.divorce > wife.death:
                 error_descrip = "Divorce occurs after death of wife"
                 error_location = [family.uid, wife.uid]
-                print_error(error_type, error_descrip, error_location)
+                report_error(error_type, error_descrip, error_location)
                 return_flag = False
             if husband.death is not None and family.divorce > husband.death:
                 error_descrip = "Divorce occurs after death of husband"
                 error_location = [family.uid, husband.uid]
-                print_error(error_type, error_descrip, error_location)
+                report_error(error_type, error_descrip, error_location)
                 return_flag = False
     return return_flag
 
@@ -405,7 +409,7 @@ def birth_before_death_of_parents(individuals, families):
                 error_description = "Child is born more than " +\
                     "9 months after death of father"
                 error_location = [family.uid, individual.uid]
-                print_error(error_type, error_description, error_location)
+                report_error(error_type, error_description, error_location)
                 return_flag = False
 
             # Case when father dies less than 9 months before
@@ -415,7 +419,7 @@ def birth_before_death_of_parents(individuals, families):
                 anom_description = "Child is born after death of father " +\
                     "but within 9 months of father's death"
                 anom_location = [family.uid, individual.uid]
-                print_anomaly(anom_type, anom_description, anom_location)
+                report_anomaly(anom_type, anom_description, anom_location)
                 return_flag = False
 
             # Case when mother dies before birth of child.
@@ -423,7 +427,7 @@ def birth_before_death_of_parents(individuals, families):
             if mother.death is not None and mother.death < individual.birthdate:
                 error_descrip = "Child is born after death of mother"
                 error_location = [family.uid, individual.uid]
-                print_error(error_type, error_descrip, error_location)
+                report_error(error_type, error_descrip, error_location)
                 return_flag = False
     return return_flag
 
@@ -438,7 +442,7 @@ def no_bigamy(families, individuals):
     if (1):
         anom_description = "Married to more than one individual at a time"
         anom_location = "l"
-        print_anomaly(anom_type, anom_description, anom_location)
+        report_anomaly(anom_type, anom_description, anom_location)
         return_flag = False
 
     return return_flag
