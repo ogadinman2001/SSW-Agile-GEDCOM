@@ -36,20 +36,36 @@ http://www.graphviz.org/pub/graphviz/stable/windows/graphviz-2.30.1.msi
 
 ## Execution
 
-To parse the default GEDCOM pass no arguments:
+Run Instructions:
+```
+python run.py --help
+usage: run.py [-h] [-v] [-t | -f [FILE]]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --visualization   Generate GEDCOM visualization graph
+  -t, --test            Run test cases
+  -f [FILE], --file [FILE]
+                        Specify a specific file to run GEDCOM parser on.
+                        Default is default_ged.ged
+
+```
+Note: if -t AND -f are missing, program will run with default GEDCOM file.
+
+To run the with the default GEDCOM file:
 ```
 python run.py
 ```
 
 To parse a specific GEDCOM pass a path argument:
 ```
-python run.py ged_tests/bgardner_P02.ged
+python run.py --file ged_tests/bgardner_P02.ged
 ```
 
 ## Tests
 To run feature tests:
 ```
-python run.py test
+python run.py --test
 ```
 ## Visualization Sample:
 * Couples will have the same colors
