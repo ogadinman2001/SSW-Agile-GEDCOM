@@ -50,7 +50,7 @@ optional arguments:
                         Default is default_ged.ged
 
 ```
-Note: if -t AND -f are missing, program will run with default GEDCOM file.
+*Note: if -t AND -f are missing, program will run with default GEDCOM file.*
 
 To run the with the default GEDCOM file:
 ```
