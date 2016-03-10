@@ -21,6 +21,7 @@ import sys
 import operator
 import os
 import unittest
+import argparse
 
 # Project imports
 from src.parser import parse_ged
@@ -32,24 +33,32 @@ FILENAME = 'default_ged.ged'
 def main():
     """ Main function for parsing of GEDCOM"""
 
-    # @TODO: Gardner implement argparse!
-    graphing_flag = 0
-
     # Allow for arguments to be passed for filename
-    if len(sys.argv) > 1:
-        if sys.argv[1] == 'test':
-            suite = unittest.TestLoader().loadTestsFromTestCase(TestParser)
-            if unittest.TextTestRunner(verbosity=1).run(suite).failures:
-                exit(-1)
-            else:
-                exit()
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument("-v", "--visualization", dest="graphing_flag",
+        action="store_true", default=False, help="Generate GEDCOM \
+        visualization graph")
+    action = arg_parser.add_mutually_exclusive_group()
+    action.add_argument("-t", "--test", action="store_true", default=False,
+        help="Run test cases")
+    action.add_argument("-f", "--file", nargs="?", const=FILENAME,
+        default=FILENAME, help="Specify a specific file to run GEDCOM \
+        parser on. Default is " + FILENAME)
 
+    arguments = arg_parser.parse_args()
+    if (arguments.test):
+        suite = unittest.TestLoader().loadTestsFromTestCase(TestParser)
+        if unittest.TextTestRunner(verbosity=1).run(suite).failures:
+            exit(-1)
         else:
-            path = sys.argv[1]
-            if os.path.exists(path):
-                individuals, families = parse_ged(path)
+            exit()
     else:
-        individuals, families = parse_ged(FILENAME)
+        path = arguments.file
+        if os.path.exists(path):
+            individuals, families = parse_ged(path)
+        else:
+            print "[!!] File \"%s\" does not exist.\nExiting..." % path
+            exit(-1)
 
     # Print Summary of results
     summary(individuals, families)
@@ -58,7 +67,7 @@ def main():
     validation(individuals, families)
 
     # Create Visualization
-    if graphing_flag:
+    if arguments.graphing_flag:
         try:
             # Do import here to prevent import error on new systems
             from src.vis import graph_family
