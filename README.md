@@ -1,8 +1,9 @@
 # SSW 555 - GEDCOM Error/Anomaly Detection
 [![Build Status](https://travis-ci.org/rickhousley/SSW-Agile-GEDCOM.svg?branch=master)](https://travis-ci.org/rickhousley/SSW-Agile-GEDCOM)
-
 ## Synopsis
 This is a command-line program used to discover errors and anomalies in GEDCOM geanealogy files. This was developed for the Stevens Graduate Software Engineering course *Agile Methods for Software Development* (SSW 555) as an exercise in Extreme Programming and Scrum methods.
+
+![Shell Example](/imgs/term_ex.gif)
 
 Currently the program has the ability to
 * Read a default_ged.ged from local directory
