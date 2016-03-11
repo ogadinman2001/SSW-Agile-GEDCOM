@@ -10,8 +10,8 @@ from parser import parse_ged
 # Add user stories after creation of test
 from user_stories import dates_before_current, birth_before_marriage, \
     birth_before_death, marriage_before_divorce, marriage_before_death, \
-    divorce_before_death, birth_before_death_of_parents, parents_not_too_old, \
-    no_bigamy
+    divorce_before_death, birth_before_death_of_parents, marriage_age, \
+    parents_not_too_old, no_bigamy
 
 
 class TestParser(unittest.TestCase):
@@ -141,6 +141,23 @@ class TestParser(unittest.TestCase):
             self.assertFalse(parents_not_too_old(individuals, families))
         else:
             print "!!parents_not_too_old acceptance file not found"
+
+    def test_marriage_age(self):
+        """ Unit test for marriage_age """
+        fail_file = "acceptance_files/fail/marriage_age.ged"
+        pass_file = "acceptance_files/pass/marriage_age.ged"
+
+        if os.path.exists(pass_file):
+            individuals, families = parse_ged(pass_file)
+            self.assertTrue(marriage_age(individuals, families))
+        else:
+            print "!!marriage_age acceptance file not found"
+
+        if os.path.exists(fail_file):
+            individuals, families = parse_ged(fail_file)
+            self.assertFalse(marriage_age(individuals, families))
+        else:
+            print "!!marriage_age acceptance file not found"
 
     def test_no_bigamy(self):
         """ Unit test for no_bigamy """
