@@ -59,7 +59,6 @@ def main():
         else:
             print "[!!] File \"%s\" does not exist.\nExiting..." % path
             exit(-1)
-
     # Print Summary of results
     summary(individuals, families)
 
