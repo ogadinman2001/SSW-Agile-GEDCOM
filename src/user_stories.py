@@ -11,6 +11,7 @@ anomaly_locations = []
 
 def validation(individuals, families):
     """ Validation check to run all user stories """
+    marriage_age(individuals, families)
 
     print "ERRORS/ANOMALIES".center(80, ' ')
     print "\nError/Anom:     Description:                                       "\
@@ -265,6 +266,43 @@ def birth_before_death_of_parents(individuals, families):
                 error_location = [family.uid, individual.uid]
                 report_error(error_type, error_descrip, error_location)
                 return_flag = False
+    return return_flag
+
+def marriage_age(individuals, families):
+    """ US10 - Marriage should be atleast 14 years after the birth
+        of both spouses - ANOMALY
+    """
+
+    anom_type = "US10"
+    return_flag = True
+
+    curr_date = datetime.today()
+    min_birt = datetime(curr_date.year-14,
+        curr_date.month, curr_date.day)
+
+    for family in families:
+        husband = None
+        wife = None
+        for individual in individuals:
+            if individual.uid == family.husband:
+                husband = individual
+            if individual.uid == family.wife:
+                wife = individual
+            # We have found both the husband and wife individuals
+            if husband is not None and wife is not None:
+                break
+
+        if husband.birthdate > min_birt:
+            anom_description = "Husband is married before 14 years old"
+            anom_location = [family.uid, husband.uid]
+            report_anomaly(anom_type, anom_description, anom_location)
+            return_flag = False
+
+        if wife.birthdate > min_birt:
+            anom_description = "Wife is married before 14 years old"
+            anom_location = [family.uid, wife.uid]
+            report_anomaly(anom_type, anom_description, anom_location)
+            return_flag = False
     return return_flag
 
 def no_bigamy(individuals, families):
