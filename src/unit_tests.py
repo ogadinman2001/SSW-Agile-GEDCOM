@@ -11,7 +11,8 @@ from parser import parse_ged
 from user_stories import dates_before_current, birth_before_marriage, \
     birth_before_death, marriage_before_divorce, marriage_before_death, \
     divorce_before_death, birth_before_death_of_parents, marriage_age, \
-    parents_not_too_old, no_bigamy
+    parents_not_too_old, no_bigamy, age_less_150, \
+    birth_before_marriage_of_parents
 
 
 class TestParser(unittest.TestCase):
@@ -100,6 +101,40 @@ class TestParser(unittest.TestCase):
             self.assertFalse(marriage_before_divorce(families))
         else:
             print "!!marriage_before_divorce acceptance file not found\n\n"
+
+    def test_age_less_150(self):
+        """ Unit test for age_less_150 """
+        fail_file = "acceptance_files/fail/age_less_150.ged"
+        pass_file = "acceptance_files/pass/age_less_150.ged"
+
+        if os.path.exists(pass_file):
+            individuals, families = parse_ged(pass_file)
+            self.assertTrue(age_less_150(individuals))
+        else:
+            print "!!age_less_150 acceptance file not found"
+
+        if os.path.exists(fail_file):
+            individuals, families = parse_ged(fail_file)
+            self.assertFalse(age_less_150(individuals))
+        else:
+            print "!!age_less_150 acceptance file not found"
+
+    def test_birth_before_marriage_of_parents(self):
+            """ Unit test for birth_before_marriage_of_parents """
+            fail_file = "acceptance_files/fail/birth_before_marriage_of_parents.ged"
+            pass_file = "acceptance_files/pass/birth_before_marriage_of_parents.ged"
+
+            if os.path.exists(pass_file):
+                individuals, families = parse_ged(pass_file)
+                self.assertTrue(birth_before_marriage_of_parents(individuals, families))
+            else:
+                print "!! birth_before_marriage_of_parents acceptance file not found"
+
+            if os.path.exists(fail_file):
+                individuals, families = parse_ged(fail_file)
+                self.assertFalse(birth_before_marriage_of_parents(individuals, families))
+            else:
+                print "!! birth_before_marriage_of_parents acceptance file not found"
 
     def test_birth_before_death_of_parents(self):
         """ Unit test for birth birth_before_death_of_parents"""

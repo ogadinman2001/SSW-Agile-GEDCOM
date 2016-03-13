@@ -27,8 +27,15 @@ def validation(individuals, families):
     divorce_before_death(individuals, families)
 
     # Sprint 2
+    #ADD YOUR FUNCTIONS HERE
+    age_less_150(individuals)
+    birth_before_marriage_of_parents(individuals, families)
+    birth_before_death_of_parents(individuals, families)
+    marriage_age(individuals, families)
     parents_not_too_old(individuals, families)
     no_bigamy(individuals, families)
+
+
 
 def report_error(etype, description, location):
     """ Reports an error to console """
@@ -204,6 +211,67 @@ def divorce_before_death(individuals, families):
                 report_error(error_type, error_descrip, error_location)
                 return_flag = False
     return return_flag
+
+
+def age_less_150(individuals):
+    """  US07 - Age should be less than 150 years for deceased and alive"""
+    return_flag = True
+    error_type = "US07"
+    # For each decesaded individual check age if age is over 150
+    for individual in individuals:
+        if individual.death and individual.birthdate:
+            if (individual.birthdate + timedelta(days=54750) < individual.death):
+                error_descrip = "Individual dies over 150 years of age"
+                error_location = [individual.uid]
+                report_error(error_type, error_descrip, error_location)
+                return_flag = False
+
+    #For each living individual, check age
+    for individual in individuals:
+        if individual.death is None and individual.birthdate:
+            if (individual.birthdate + timedelta(days=54750) < datetime.now()):
+                error_descrip = "Living Individual over 150 years old"
+                error_location = [individual.uid]
+                report_error(error_type, error_descrip, error_location)
+                return_flag = False
+    return return_flag
+
+#Should this be done based off of date of conception or birth?
+#user story from team report says birthdate
+def birth_before_marriage_of_parents(individuals, families):
+    """ US08 - Birth should occur after the marriage of parents """
+    return_flag = True
+    anom_type = "US08"
+
+    # Loop through individuals to compare their brithdate
+    # with the marriage/divorce dates of their parents
+    for individual in individuals:
+
+        # Some individuals do not have parents defined
+        # if they are the oldest generation in the gedcom file,
+        # so check if individual.famc has elements before proceeding
+        if len(individual.famc) > 0:
+
+            # locate family of individual
+            for family in families:
+                if family.uid == individual.famc[0]:
+                    # Checks for a child born before marriage
+                    if family.marriage:
+                        if family.marriage > individual.birthdate :
+                            anom_description = "Child is born before marriage "
+                            anom_location = [individual.uid, family.uid]
+                            report_anomaly(anom_type, anom_description, anom_location)
+                            return_flag = False
+                    # checks for child born after divorce
+                    if family.marriage and family.divorce:
+                        if family.divorce < individual.birthdate :
+                            anom_description = "Child is born after divorce "
+                            anom_location = [individual.uid, family.uid]
+                            report_anomaly(anom_type, anom_description, anom_location)
+                            return_flag = False
+
+    return return_flag
+
 
 def birth_before_death_of_parents(individuals, families):
     """ US09 - Birth should occur before the death of parents """
