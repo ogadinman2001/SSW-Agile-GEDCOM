@@ -12,7 +12,8 @@ from user_stories import dates_before_current, birth_before_marriage, \
     birth_before_death, marriage_before_divorce, marriage_before_death, \
     divorce_before_death, birth_before_death_of_parents, marriage_age, \
     parents_not_too_old, no_bigamy, age_less_150, \
-    birth_before_marriage_of_parents
+    birth_before_marriage_of_parents, no_sibling_marriage, \
+    no_marriage_to_decendants
 
 
 class TestParser(unittest.TestCase):
@@ -217,3 +218,37 @@ class TestParser(unittest.TestCase):
             self.assertFalse(no_bigamy(individuals, families))
         else:
             print "!!no_bigamy acceptance file not found"
+
+    def test_no_sibling_marriage(self):
+        """ Unit test for no_sibling_marriage """
+
+        fail_file = "acceptance_files/fail/no_sibling_marriage.ged"
+        pass_file = "acceptance_files/pass/no_sibling_marriage.ged"
+
+        if os.path.exists(pass_file):
+            individuals, families = parse_ged(pass_file)
+            self.assertTrue(no_sibling_marriage(individuals, families))
+        else:
+            print "!!no_sibling_marriage acceptance file not found"
+        if os.path.exists(fail_file):
+            individuals, families = parse_ged(fail_file)
+            self.assertFalse(no_sibling_marriage(individuals, families))
+        else:
+            print "!!no_sibling_marriage acceptance file not found"
+
+    def test_no_marriage_to_decendants(self):
+        """ Unit test for no_marriage_to_decendants """
+
+        fail_file = "acceptance_files/fail/no_marriage_to_decendants.ged"
+        pass_file = "acceptance_files/pass/no_marriage_to_decendants.ged"
+
+        if os.path.exists(pass_file):
+            individuals, families = parse_ged(pass_file)
+            self.assertTrue(no_marriage_to_decendants(individuals, families))
+        else:
+            print "!!no_marriage_to_decendants acceptance file not found"
+        if os.path.exists(fail_file):
+            individuals, families = parse_ged(fail_file)
+            self.assertFalse(no_marriage_to_decendants(individuals, families))
+        else:
+            print "!!no_marriage_to_decendants file not found"
