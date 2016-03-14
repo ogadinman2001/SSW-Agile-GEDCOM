@@ -38,24 +38,42 @@ def validation(individuals, families):
     no_marriage_to_decendants(individuals, families)
 
 
-def report_error(etype, description, location):
-    """ Reports an error to console """
+def report(rtype, number, description, location):
+    """ Reports rtype to console """
 
-    estr = 'ERROR {:5.5s}     {:55.55s} {}'\
-        .format(etype, description, ','.join(location))
-    for loc in location:
-        error_locations.append(loc)
+    rtype2, num2, description2, location2 = "", "", "", ""
+    report_again_flag = False
+
+    if isinstance(location, list):
+        location = ','.join(location)
+
+    if len(rtype) > 7 or len(number) > 5 or len(description) > 50 \
+        or len(' '.join(location)) > 10:
+
+        rtype2 = rtype[7:]
+        num2 = number[5:]
+        description2 = description[50:]
+        location2 = location[10:]
+        report_again_flag = True
+
+    estr = '{:7.7s}  {:5.5s}  {:50.50s}    {:10.10s}'\
+        .format(rtype, number, description, location)
     print estr
 
-def report_anomaly(atype, description, location):
+    if report_again_flag:
+        report(rtype2, num2, description2, location2)
+
+def report_anomaly(atype, description, locations):
     """ Reports an anomaly to console """
 
-    astr = 'ANOMALY {:5.5s}     {:53.53s} {}'\
-        .format(atype, description, ','.join(location))
-    for loc in location:
-        anomaly_locations.append(loc)
-    print astr
+    report("ANOMALY", atype, description, locations)
+    anomaly_locations.extend(locations)
 
+def report_error(etype, description, locations):
+    """ Reports an error to console """
+
+    report("ERROR", etype, description, locations)
+    error_locations.extend(locations)
 
 ### USER STORIES IN-ORDER BELOW ###
 
