@@ -85,7 +85,12 @@ python run.py --test
 | US04     | Marriage before divorce   | bg    |
 | US05     | Marriage before death     | rh    |
 | US06     | Divorce before death      | rh    |
-
+| US07     | Less then 150 years old   | mm    |
+| US08     | Birth before marriage of parents  | mm    |
+| US09     | Birth before death of parents     | bg    |
+| US10     | Marriage after 14         | bg    |
+| US11     | No bigamy                 | rh    |
+| US12     | Parents not too old       | rh    |
 
 ## Contributors
 + Bryan Gardner
