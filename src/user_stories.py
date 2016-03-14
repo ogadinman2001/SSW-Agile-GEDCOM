@@ -27,7 +27,6 @@ def validation(individuals, families):
     divorce_before_death(individuals, families)
 
     # Sprint 2
-    #ADD YOUR FUNCTIONS HERE
     age_less_150(individuals)
     birth_before_marriage_of_parents(individuals, families)
     birth_before_death_of_parents(individuals, families)
@@ -277,7 +276,6 @@ def birth_before_death_of_parents(individuals, families):
     """ US09 - Birth should occur before the death of parents """
     return_flag = True
     error_type = "US09"
-    anom_type = "US09"
 
     # Loop through individuals to compare their brithdate
     # with the death date of their parents
@@ -291,12 +289,14 @@ def birth_before_death_of_parents(individuals, families):
             father_id = None
             mother = None
             mother_id = None
+            fam = None
 
             # Get the UID of parents for an individual
             for family in families:
                 if family.uid == individual.famc[0]:
                     father_id = family.husband
                     mother_id = family.wife
+                    fam = family
                     break
 
             # Get reference to Father and Mother objects
@@ -313,25 +313,15 @@ def birth_before_death_of_parents(individuals, families):
                 father.death < individual.birthdate - timedelta(days=266):
                 error_description = "Child is born more than " +\
                     "9 months after death of father"
-                error_location = [family.uid, individual.uid]
+                error_location = [fam.uid, individual.uid]
                 report_error(error_type, error_description, error_location)
-                return_flag = False
-
-            # Case when father dies less than 9 months before
-            # birth of child. This is an anomaly.
-            elif father.death is not None and \
-                father.death < individual.birthdate:
-                anom_description = "Child is born after death of father " +\
-                    "but within 9 months of father's death"
-                anom_location = [family.uid, individual.uid]
-                report_anomaly(anom_type, anom_description, anom_location)
                 return_flag = False
 
             # Case when mother dies before birth of child.
             # This is impossible.
             if mother.death is not None and mother.death < individual.birthdate:
                 error_descrip = "Child is born after death of mother"
-                error_location = [family.uid, individual.uid]
+                error_location = [fam.uid, individual.uid]
                 report_error(error_type, error_descrip, error_location)
                 return_flag = False
     return return_flag
