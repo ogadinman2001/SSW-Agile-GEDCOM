@@ -9,6 +9,7 @@ VALID_TAGS = ['INDI', 'NAME', 'SEX', 'BIRT', 'DEAT', 'FAMC', 'FAMS', 'FAM',
               'MARR', 'HUSB', 'WIFE', 'CHIL', 'DIV', 'DATE', 'HEAD', 'TRLR',
               'NOTE']
 
+
 class Gedline(object):
     """Class for a single line of a GEDCOM file"""
 

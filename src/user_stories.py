@@ -8,16 +8,16 @@ from datetime import datetime, timedelta
 error_locations = []
 anomaly_locations = []
 
+
 def validation(individuals, families):
     """ Validation check to run all user stories """
     marriage_age(individuals, families)
 
     print "ERRORS/ANOMALIES".center(80, ' ')
-    print "\nError/Anom:     Description:                                       "\
-    "     Location"
+    print "\nError/Anom:     Description:                                     "\
+        "     Location"
     print '-' * 80
 
-    # Sprint 1
     dates_before_current(individuals, families)
     birth_before_marriage(individuals, families)
     birth_before_death(individuals)
@@ -48,7 +48,7 @@ def report(rtype, number, description, location):
         location = ','.join(location)
 
     if len(rtype) > 7 or len(number) > 5 or len(description) > 50 \
-        or len(' '.join(location)) > 10:
+            or len(' '.join(location)) > 10:
 
         rtype2 = rtype[7:]
         num2 = number[5:]
@@ -63,11 +63,13 @@ def report(rtype, number, description, location):
     if report_again_flag:
         report(rtype2, num2, description2, location2)
 
+
 def report_anomaly(atype, description, locations):
     """ Reports an anomaly to console """
 
     report("ANOMALY", atype, description, locations)
     anomaly_locations.extend(locations)
+
 
 def report_error(etype, description, locations):
     """ Reports an error to console """
@@ -76,6 +78,7 @@ def report_error(etype, description, locations):
     error_locations.extend(locations)
 
 ### USER STORIES IN-ORDER BELOW ###
+
 
 def dates_before_current(individuals, families):
     """ US01 All dates must be before the current date - ERROR"""
@@ -144,6 +147,7 @@ def birth_before_marriage(individuals, families):
 
     return return_flag
 
+
 def birth_before_death(individuals):
     """ US03 - Birth should occur before death of an individual - ERROR"""
     # For each individual check if death occurs before death
@@ -157,6 +161,7 @@ def birth_before_death(individuals):
                 report_error(error_type, error_descrip, error_location)
                 return_flag = False
     return return_flag
+
 
 def marriage_before_divorce(families):
     """ US04 - Marriage should occur before divorce - ERROR"""
@@ -173,6 +178,7 @@ def marriage_before_divorce(families):
                 report_error(error_type, error_descrip, error_location)
                 return_flag = False
     return return_flag
+
 
 def marriage_before_death(individuals, families):
     """ US05 - Marriage should occur before death of either spouse - ERROR"""
@@ -201,6 +207,7 @@ def marriage_before_death(individuals, families):
                 report_error(error_type, error_descrip, error_location)
                 return_flag = False
     return return_flag
+
 
 def divorce_before_death(individuals, families):
     """ US06 - Divorce should occur before death of either spouse - ERROR"""
@@ -239,24 +246,26 @@ def age_less_150(individuals):
     # For each decesaded individual check age if age is over 150
     for individual in individuals:
         if individual.death and individual.birthdate:
-            if (individual.birthdate + timedelta(days=54750) < individual.death):
+            if individual.birthdate + timedelta(days=54750) < individual.death:
                 error_descrip = "Individual dies over 150 years of age"
                 error_location = [individual.uid]
                 report_error(error_type, error_descrip, error_location)
                 return_flag = False
 
-    #For each living individual, check age
+    # For each living individual, check age
     for individual in individuals:
         if individual.death is None and individual.birthdate:
-            if (individual.birthdate + timedelta(days=54750) < datetime.now()):
+            if individual.birthdate + timedelta(days=54750) < datetime.now():
                 error_descrip = "Living Individual over 150 years old"
                 error_location = [individual.uid]
                 report_error(error_type, error_descrip, error_location)
                 return_flag = False
     return return_flag
 
-#Should this be done based off of date of conception or birth?
-#user story from team report says birthdate
+# Should this be done based off of date of conception or birth?
+# user story from team report says birthdate
+
+
 def birth_before_marriage_of_parents(individuals, families):
     """ US08 - Birth should occur after the marriage of parents """
     return_flag = True
@@ -276,14 +285,14 @@ def birth_before_marriage_of_parents(individuals, families):
                 if family.uid == individual.famc[0]:
                     # Checks for a child born before marriage
                     if family.marriage:
-                        if family.marriage > individual.birthdate :
+                        if family.marriage > individual.birthdate:
                             anom_description = "Child is born before marriage "
                             anom_location = [individual.uid, family.uid]
                             report_anomaly(anom_type, anom_description, anom_location)
                             return_flag = False
                     # checks for child born after divorce
                     if family.marriage and family.divorce:
-                        if family.divorce < individual.birthdate :
+                        if family.divorce < individual.birthdate:
                             anom_description = "Child is born after divorce "
                             anom_location = [individual.uid, family.uid]
                             report_anomaly(anom_type, anom_description, anom_location)
@@ -330,7 +339,7 @@ def birth_before_death_of_parents(individuals, families):
             # Case when father dies more than 9 months before
             # birth of child. This is an error.
             if father.death is not None and \
-                father.death < individual.birthdate - timedelta(days=266):
+                    father.death < individual.birthdate - timedelta(days=266):
                 error_description = "Child is born more than " +\
                     "9 months after death of father"
                 error_location = [fam.uid, individual.uid]
@@ -346,6 +355,7 @@ def birth_before_death_of_parents(individuals, families):
                 return_flag = False
     return return_flag
 
+
 def marriage_age(individuals, families):
     """ US10 - Marriage should be atleast 14 years after the birth
         of both spouses - ANOMALY
@@ -355,8 +365,8 @@ def marriage_age(individuals, families):
     return_flag = True
 
     curr_date = datetime.today()
-    min_birt = datetime(curr_date.year-14,
-        curr_date.month, curr_date.day)
+    min_birt = datetime(curr_date.year - 14,
+                        curr_date.month, curr_date.day)
 
     for family in families:
         husband = None
@@ -383,16 +393,17 @@ def marriage_age(individuals, families):
             return_flag = False
     return return_flag
 
+
 def no_bigamy(individuals, families):
     """ US11 - Marriage should not occur during marriage to another spouse -
         ANOMALY
     """
-         #for each fams check for divorce or death prior to next fam
+    # for each fams check for divorce or death prior to next fam
     anom_type = "US11"
     return_flag = True
 
     for family in families:
-        #check if husband is in any other families
+        # check if husband is in any other families
         husband_uid = family.husband
         wife_uid = family.wife
 
@@ -406,12 +417,13 @@ def no_bigamy(individuals, families):
                     wife = next(x for x in individuals if x.uid == family.wife)
 
                     # Family divorce should occur after or wife should die first
-                    if ((family.divorce < fam_compare.marriage) or \
-                        ((wife.death) and (wife.death < fam_compare.marriage))):
+                    if ((family.divorce < fam_compare.marriage) or
+                            ((wife.death) and (wife.death < fam_compare.marriage))):
 
-                        anomaly_description="Marriage occured before divorce or death from/of wife"
+                        anomaly_description = "Marriage occured before "\
+                            "divorce or death from/of wife"
                         a_loc = [family.wife, fam_compare.wife, family.husband]
-                        report_anomaly(anom_type,anomaly_description,a_loc)
+                        report_anomaly(anom_type, anomaly_description, a_loc)
                         return_flag = False
 
             if fam_compare.wife == wife_uid:
@@ -419,11 +431,12 @@ def no_bigamy(individuals, families):
                     husb = next(x for x in individuals if x.uid == family.husband)
 
                     # Family divorce should occur after or wife should die first
-                    if ((family.divorce > fam_compare.marriage) or ((husb.death) and (husb.death < family.marriage))):
-                        anomaly_description=\
-                        "Marriage occured before divorce or death from/of husband"
+                    if (family.divorce > fam_compare.marriage) or \
+                        ((husb.death) and (husb.death < family.marriage)):
+                        anomaly_description =\
+                            "Marriage occured before divorce or death from/of husband"
                         a_loc = [family.husband, fam_compare.husband, family.wife]
-                        report_anomaly(anom_type,anomaly_description,a_loc)
+                        report_anomaly(anom_type, anomaly_description, a_loc)
                         return_flag = False
     return return_flag
 
@@ -453,7 +466,7 @@ def parents_not_too_old(individuals, families):
         for child_uid in children_uids:
             child = next((x for x in individuals if x.uid == child_uid), None)
 
-            if mother and child: #This may be repetitive
+            if mother and child:  # This may be repetitive
                 if (child.birthdate - mother.birthdate) > \
                         timedelta(DAYS_IN_60_YEARS):
                     anom_description = "Mother is 60 years older than child"
@@ -461,7 +474,7 @@ def parents_not_too_old(individuals, families):
                     report_anomaly(anom_type, anom_description, anom_location)
                     return_flag = False
 
-            if father and child: #This may be repetitive
+            if father and child:  # This may be repetitive
                 if (child.birthdate - father.birthdate) > \
                         timedelta(days=DAYS_IN_80_YEARS):
                     anom_description = "Father is 80 years older than child"
@@ -472,7 +485,7 @@ def parents_not_too_old(individuals, families):
     return return_flag
 
 
-def no_marriage_to_decendants(individuals, families):
+def no_marriage_to_decendants(_, families):
     """ US17- Parents should not marry any of their descendants - ANOMALY """
     anom_type = "US17"
     return_flag = True
@@ -489,28 +502,30 @@ def no_marriage_to_decendants(individuals, families):
         if family.husband and family.wife and family.wife in decendants:
             anom_descrip = "Wife is decendant of spouse"
             anom_location = [family.wife, family.husband]
-            report_anomaly(anom_type,anom_descrip, anom_location)
+            report_anomaly(anom_type, anom_descrip, anom_location)
             return_flag = False
 
         if family.husband and family.wife and family.wife in decendants:
             anom_descrip = "Husband is decendant of spouse"
             anom_location = [family.wife, family.husband]
-            report_anomaly(anom_type,anom_descrip, anom_location)
+            report_anomaly(anom_type, anom_descrip, anom_location)
             return_flag = False
 
     return return_flag
 
+
 def return_children(uid, families):
     """ Helper function for no_marriage_to_decendants """
-    #find family where uid is a Parents
+    # find family where uid is a Parents
     family = next((x for x in families if x.husband == uid), None)
     if family is None:
-        family = next((x for x in families if x.wife==uid), None)
+        family = next((x for x in families if x.wife == uid), None)
 
-    if family is None: #Is never a parent
+    if family is None:  # Is never a parent
         return None
     else:
         return family.children
+
 
 def no_sibling_marriage(individuals, families):
     """ US18 - Siblings should not marry one another - ANOMALY """

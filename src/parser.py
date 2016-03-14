@@ -1,5 +1,10 @@
+""" Python module for parsing GEDCOM geneaology files - parser
+
+    This file provides the parsing utility for the GEDCOM parsing project
+"""
 from models import Gedline, Individual, Family
 from datetime import datetime
+
 
 def parse_ged(filename):
     """ Parses a GEDCOM file. Returns list of individual instances and family
@@ -18,12 +23,13 @@ def parse_ged(filename):
     # Parsing of 0 level tags
     for index, gedline in enumerate(gedlist):
         if gedline.tag == 'INDI':
-            individuals.append(parse_single_individual(gedlist, index, \
-            gedline.xref))
+            individuals.append(parse_single_individual(gedlist, index,
+                                                       gedline.xref))
         if gedline.tag == 'FAM':
             families.append(parse_single_family(gedlist, index, gedline.xref))
 
     return (individuals, families)
+
 
 def parse_single_individual(gedlist, index, xref):
     """
@@ -33,7 +39,7 @@ def parse_single_individual(gedlist, index, xref):
     indiv = Individual(xref)
 
     date_type = None
-    for gedline in gedlist[index+1:]:
+    for gedline in gedlist[index + 1:]:
         if gedline.level == 0:
             break
         if gedline.tag == "NAME":
@@ -54,15 +60,15 @@ def parse_single_individual(gedlist, index, xref):
             if date_type == "BIRT":
                 # Store birthdate as datetime object
                 indiv.birthdate = datetime(
-                    int(gedline.args[2]), \
-                    datetime.strptime(gedline.args[1], '%b').month, \
+                    int(gedline.args[2]),
+                    datetime.strptime(gedline.args[1], '%b').month,
                     int(gedline.args[0]))
                 date_type = None
             elif date_type == "DEAT":
                 # Store death as datetime object
                 indiv.death = datetime(
-                    int(gedline.args[2]), \
-                    datetime.strptime(gedline.args[1], '%b').month, \
+                    int(gedline.args[2]),
+                    datetime.strptime(gedline.args[1], '%b').month,
                     int(gedline.args[0]))
                 date_type = None
             else:
@@ -78,7 +84,7 @@ def parse_single_family(gedlist, index, xref):
     family = Family(xref)
 
     date_type = None
-    for gedline in gedlist[index+1:]:
+    for gedline in gedlist[index + 1:]:
         if gedline.level == 0:
             break
         if gedline.tag == "MARR":
@@ -98,16 +104,16 @@ def parse_single_family(gedlist, index, xref):
             if date_type == "MARR":
                 # Store marriage date as datetime
                 family.marriage = datetime(
-                    int(gedline.args[2]), \
-                    datetime.strptime(gedline.args[1], '%b').month,\
+                    int(gedline.args[2]),
+                    datetime.strptime(gedline.args[1], '%b').month,
                     int(gedline.args[0]))
                 date_type = None
 
             elif date_type == "DIV":
                 # Store divorce date as datetime
                 family.divorce = datetime(
-                    int(gedline.args[2]), \
-                    datetime.strptime(gedline.args[1], '%b').month, \
+                    int(gedline.args[2]),
+                    datetime.strptime(gedline.args[1], '%b').month,
                     int(gedline.args[0]))
                 date_type = None
             else:

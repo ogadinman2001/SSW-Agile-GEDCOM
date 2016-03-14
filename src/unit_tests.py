@@ -109,13 +109,13 @@ class TestParser(unittest.TestCase):
         pass_file = "acceptance_files/pass/age_less_150.ged"
 
         if os.path.exists(pass_file):
-            individuals, families = parse_ged(pass_file)
+            individuals, _ = parse_ged(pass_file)
             self.assertTrue(age_less_150(individuals))
         else:
             print "!!age_less_150 acceptance file not found"
 
         if os.path.exists(fail_file):
-            individuals, families = parse_ged(fail_file)
+            individuals, _ = parse_ged(fail_file)
             self.assertFalse(age_less_150(individuals))
         else:
             print "!!age_less_150 acceptance file not found"
