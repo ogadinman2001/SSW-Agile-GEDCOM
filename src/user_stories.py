@@ -4,7 +4,6 @@
 """
 
 from datetime import datetime, timedelta
-import collections
 
 error_locations = []
 anomaly_locations = []
@@ -34,6 +33,9 @@ def validation(individuals, families):
     parents_not_too_old(individuals, families)
     no_bigamy(individuals, families)
 
+    # Sprint 3
+    no_sibling_marriage(individuals, families)
+    no_marriage_to_decendants(individuals, families)
 
 
 def report_error(etype, description, location):
@@ -448,5 +450,66 @@ def parents_not_too_old(individuals, families):
                     anom_location = [father.uid, child.uid]
                     report_anomaly(anom_type, anom_description, anom_location)
                     return_flag = False
+
+    return return_flag
+
+
+def no_marriage_to_decendants(individuals, families):
+    """ US17- Parents should not marry any of their descendants - ANOMALY """
+    anom_type = "US17"
+    return_flag = True
+
+    for family in families:
+        decendants = []
+
+        decendants.extend(family.children)
+        for decendant in decendants:
+            temp_decs = return_children(decendant, families)
+            if temp_decs is not None:
+                decendants.extend(temp_decs)
+
+        if family.husband and family.wife and family.wife in decendants:
+            anom_descrip = "Wife is decendant of spouse"
+            anom_location = [family.wife, family.husband]
+            report_anomaly(anom_type,anom_descrip, anom_location)
+            return_flag = False
+
+        if family.husband and family.wife and family.wife in decendants:
+            anom_descrip = "Husband is decendant of spouse"
+            anom_location = [family.wife, family.husband]
+            report_anomaly(anom_type,anom_descrip, anom_location)
+            return_flag = False
+
+    return return_flag
+
+def return_children(uid, families):
+    """ Helper function for no_marriage_to_decendants """
+    #find family where uid is a Parents
+    family = next((x for x in families if x.husband == uid), None)
+    if family is None:
+        family = next((x for x in families if x.wife==uid), None)
+
+    if family is None: #Is never a parent
+        return None
+    else:
+        return family.children
+
+def no_sibling_marriage(individuals, families):
+    """ US18 - Siblings should not marry one another - ANOMALY """
+    anom_type = "US18"
+    return_flag = True
+
+    for family in families:
+        sibling_uids = family.children
+        siblings = list(x for x in individuals if x.uid in sibling_uids)
+
+        for sibling in siblings:
+            sib_fam = next((x for x in families if x.husband == sibling.uid), None)
+
+            if sib_fam and sib_fam.wife in sibling_uids:
+                anom_descrip = "Sibling is married to another sibling"
+                anom_location = [sibling.uid, sib_fam.wife]
+                report_anomaly(anom_type, anom_descrip, anom_location)
+                return_flag = False
 
     return return_flag
