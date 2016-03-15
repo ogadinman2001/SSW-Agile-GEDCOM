@@ -33,6 +33,8 @@ FILENAME = 'default_ged.ged'
 def main():
     """ Main function for parsing of GEDCOM"""
 
+    print "coverage test"
+
     # Allow for arguments to be passed for filename
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument("-v", "--visualization", dest="graphing_flag",
