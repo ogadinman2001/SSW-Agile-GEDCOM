@@ -34,7 +34,7 @@ class TestParser(unittest.TestCase):
             individuals, families = parse_ged(fail_file)
             self.assertFalse(dates_before_current(individuals, families))
         else:
-            print "!!test_date_before_current acceptance file not found\n\n"
+            print "!!test_date_before_current acceptance file not found"
 
     def test_birth_before_marriage(self):
         """ Unit test for birth_before_marriage"""
@@ -48,7 +48,7 @@ class TestParser(unittest.TestCase):
             individuals, families = parse_ged(fail_file)
             self.assertFalse(birth_before_marriage(individuals, families))
         else:
-            print "!!test_marriage_before_death acceptance file not found\n\n"
+            print "!!test_marriage_before_death acceptance file not found"
 
     def test_marriage_before_death(self):
         """ Unit test for marriage_before_death """
@@ -62,7 +62,7 @@ class TestParser(unittest.TestCase):
             individuals, families = parse_ged(fail_file)
             self.assertFalse(marriage_before_death(individuals, families))
         else:
-            print "!!test_marriage_before_death acceptance file not found\n\n"
+            print "!!test_marriage_before_death acceptance file not found"
 
     def test_divorce_before_death(self):
         """ Unit test for divorce_before_death """
@@ -76,7 +76,7 @@ class TestParser(unittest.TestCase):
             individuals, families = parse_ged(fail_file)
             self.assertFalse(divorce_before_death(individuals, families))
         else:
-            print "!!test_divorce_before_death acceptance file not found\n\n"
+            print "!!test_divorce_before_death acceptance file not found"
 
     def test_birth_before_death(self):
         """ Unit test for birth_before_death """
@@ -90,7 +90,7 @@ class TestParser(unittest.TestCase):
             individuals, _ = parse_ged(fail_file)
             self.assertFalse(birth_before_death(individuals))
         else:
-            print "!!test_birth_before_death acceptance file not found\n\n"
+            print "!!test_birth_before_death acceptance file not found"
 
     def test_marriage_before_divorce(self):
         """ Unit test for marriage_before_divorce """
@@ -104,7 +104,7 @@ class TestParser(unittest.TestCase):
             _, families = parse_ged(fail_file)
             self.assertFalse(marriage_before_divorce(families))
         else:
-            print "!!marriage_before_divorce acceptance file not found\n\n"
+            print "!!marriage_before_divorce acceptance file not found"
 
     def test_age_less_150(self):
         """ Unit test for age_less_150 """
@@ -130,44 +130,49 @@ class TestParser(unittest.TestCase):
 
         if os.path.exists(pass_file):
             individuals, families = parse_ged(pass_file)
-            self.assertTrue(birth_before_marriage_of_parents(individuals, families))
+            self.assertTrue(
+                birth_before_marriage_of_parents(individuals, families))
         else:
-            print "!! birth_before_marriage_of_parents acceptance file not found"
+            print "!!birth_before_marriage_of_parents " \
+                + "acceptance file not found"
 
         if os.path.exists(fail_file):
             individuals, families = parse_ged(fail_file)
-            self.assertFalse(birth_before_marriage_of_parents(individuals, families))
+            self.assertFalse(
+                birth_before_marriage_of_parents(individuals, families))
         else:
-            print "!! birth_before_marriage_of_parents acceptance file not found"
+            print "!!birth_before_marriage_of_parents " \
+                + "acceptance file not found"
 
     def test_birth_before_death_of_parents(self):
         """ Unit test for birth birth_before_death_of_parents"""
 
-        # fail_file_father_anomaly = "acceptance_files/fail/birth_before_death" \
-        #     + "_of_parents_FATHER_anomaly.ged"
         fail_file_father = FAIL_DIR + "birth_before_death" \
             + "_of_parents_FATHER.ged"
         fail_file_mother = FAIL_DIR + "birth_before_death" \
-            +"_of_parents_MOTHER.ged"
+            + "_of_parents_MOTHER.ged"
         pass_file = PASS_DIR + "birth_before_death_of_parents.ged"
 
         if os.path.exists(pass_file):
             individuals, families = parse_ged(pass_file)
-            self.assertTrue(birth_before_death_of_parents(individuals, families))
+            self.assertTrue(
+                birth_before_death_of_parents(individuals, families))
         else:
-            print "!!birth_before_death_of_parents acceptance file not found\n\n"
+            print "!!birth_before_death_of_parents acceptance file not found"
 
         if os.path.exists(fail_file_father):
             individuals, families = parse_ged(fail_file_father)
-            self.assertFalse(birth_before_death_of_parents(individuals, families))
+            self.assertFalse(
+                birth_before_death_of_parents(individuals, families))
         else:
-            print "!!birth_before_death_of_parents acceptance file not found\n\n"
+            print "!!birth_before_death_of_parents acceptance file not found"
 
         if os.path.exists(fail_file_mother):
             individuals, families = parse_ged(fail_file_mother)
-            self.assertFalse(birth_before_death_of_parents(individuals, families))
+            self.assertFalse(
+                birth_before_death_of_parents(individuals, families))
         else:
-            print "!!birth_before_death_of_parents acceptance file not found\n\n"
+            print "!!birth_before_death_of_parents acceptance file not found"
 
     def test_parents_not_too_old(self):
         """ Unit test for test_parents_not_too_old """
@@ -189,6 +194,7 @@ class TestParser(unittest.TestCase):
 
     def test_marriage_age(self):
         """ Unit test for marriage_age """
+
         fail_file = FAIL_DIR + "marriage_age.ged"
         pass_file = PASS_DIR + "marriage_age.ged"
 
