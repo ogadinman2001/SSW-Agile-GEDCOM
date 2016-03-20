@@ -34,6 +34,7 @@ def validation(individuals, families):
     no_bigamy(individuals, families)
 
     # Sprint 3
+    fewer_than_fifteen_siblings(individuals, families)
     no_sibling_marriage(individuals, families)
     no_marriage_to_decendants(individuals, families)
 
@@ -482,6 +483,20 @@ def parents_not_too_old(individuals, families):
                     report_anomaly(anom_type, anom_description, anom_location)
                     return_flag = False
 
+    return return_flag
+
+
+def fewer_than_fifteen_siblings(_, families):
+    """ US15 - Families should not have more than 15 children - ANOMALY """
+    anom_type = "US15"
+    return_flag = True
+
+    for family in families:
+        if len(family.children) >= 15:
+            anom_description = "Family has 15 or more siblings"
+            anom_location = [family.uid]
+            report_anomaly(anom_type, anom_description, anom_location)
+            return_flag = False
     return return_flag
 
 
