@@ -13,7 +13,7 @@ from user_stories import dates_before_current, birth_before_marriage, \
     divorce_before_death, birth_before_death_of_parents, marriage_age, \
     parents_not_too_old, no_bigamy, age_less_150, \
     birth_before_marriage_of_parents, no_sibling_marriage, \
-    no_marriage_to_decendants, fewer_than_fifteen_siblings
+    no_marriage_to_decendants, fewer_than_fifteen_siblings, male_last_names
 
 FAIL_DIR = "acceptance_files/fail/"
 PASS_DIR = "acceptance_files/pass/"
@@ -258,6 +258,25 @@ class TestParser(unittest.TestCase):
                 individuals, families))
         else:
             print "!!fewer_than_fifteen_siblings acceptance file not found"
+
+    def test_male_last_names(self):
+        """ Unit test for male_last_names """
+
+        acceptf = "male_last_names.ged"
+        fail_file = FAIL_DIR + acceptf
+        pass_file = PASS_DIR + acceptf
+
+        if os.path.exists(pass_file):
+            individuals, families = parse_ged(pass_file)
+            self.assertTrue(male_last_names(individuals, families))
+        else:
+            print "!!male_last_names acceptance file not found"
+
+        if os.path.exists(fail_file):
+            individuals, families = parse_ged(fail_file)
+            self.assertFalse(male_last_names(individuals, families))
+        else:
+            print "!!male_last_names acceptance file not found"
 
     def test_no_sibling_marriage(self):
         """ Unit test for no_sibling_marriage """

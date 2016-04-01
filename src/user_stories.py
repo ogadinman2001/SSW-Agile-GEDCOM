@@ -4,6 +4,7 @@
 """
 
 from datetime import datetime, timedelta
+import re
 
 error_locations = []
 anomaly_locations = []
@@ -35,6 +36,7 @@ def validation(individuals, families):
 
     # Sprint 3
     fewer_than_fifteen_siblings(individuals, families)
+    male_last_names(individuals, families)
     no_sibling_marriage(individuals, families)
     no_marriage_to_decendants(individuals, families)
 
@@ -500,6 +502,36 @@ def fewer_than_fifteen_siblings(_, families):
     return return_flag
 
 
+def strip_surname(individual):
+    """ Strip surname out of individual's name """
+    match = re.search(r"/(.*)/", (" ".join(individual.name)))
+    if match:
+        return match.group(1)
+    else:
+        return ""
+
+
+def male_last_names(individuals, families):
+    """ US16 -- all males in a family should have the same last name """
+    anom_type = "US16"
+    return_flag = True
+
+    for family in families:
+        males = []
+        for individual in individuals:
+            if individual.sex is "M" and (
+                family.uid in individual.famc or
+                family.uid in individual.fams):
+                males.append(individual)
+        for male in males[1:]:
+            if strip_surname(male) != strip_surname(males[0]):
+                return_flag = False
+                anom_descrip = "Male surname mismatch in family"
+                anom_location = [male.uid, family.uid]
+                report_anomaly(anom_type, anom_descrip, anom_location)
+    return return_flag
+
+
 def no_marriage_to_decendants(_, families):
     """ US17- Parents should not marry any of their descendants - ANOMALY """
     anom_type = "US17"
@@ -527,7 +559,6 @@ def no_marriage_to_decendants(_, families):
             return_flag = False
 
     return return_flag
-
 
 def return_children(uid, families):
     """ Helper function for no_marriage_to_decendants """
