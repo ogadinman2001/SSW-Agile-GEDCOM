@@ -12,8 +12,10 @@ from user_stories import dates_before_current, birth_before_marriage, \
     birth_before_death, marriage_before_divorce, marriage_before_death, \
     divorce_before_death, birth_before_death_of_parents, marriage_age, \
     parents_not_too_old, no_bigamy, age_less_150, \
-    birth_before_marriage_of_parents, no_sibling_marriage, \
-    no_marriage_to_decendants, fewer_than_fifteen_siblings, male_last_names
+    birth_before_marriage_of_parents, multiple_births_less_5, \
+    no_sibling_marriage, no_marriage_to_decendants, \
+    fewer_than_fifteen_siblings, male_last_names, \
+    sibling_spacing
 
 FAIL_DIR = "acceptance_files/fail/"
 PASS_DIR = "acceptance_files/pass/"
@@ -239,6 +241,43 @@ class TestParser(unittest.TestCase):
             self.assertFalse(no_bigamy(individuals, families))
         else:
             print "!!no_bigamy acceptance file not found"
+
+    def test_multiple_births_less_5(self):
+        """ Unit test for multiple_births_less_5"""
+
+        acceptf = "multiple_births_less_5.ged"
+        fail_file = FAIL_DIR + acceptf
+        pass_file = PASS_DIR + acceptf
+
+        if os.path.exists(pass_file):
+            individuals, families = parse_ged(pass_file)
+            self.assertTrue(multiple_births_less_5(individuals, families))
+        else:
+            print "!!multiple_births_less_5 acceptance file not found"
+        if os.path.exists(fail_file):
+            individuals, families = parse_ged(fail_file)
+            self.assertFalse(multiple_births_less_5(
+                individuals, families))
+        else:
+            print "!!multiple_births_less_5 acceptance file not found"
+
+    def test_sibling_spacing(self):
+        """ Unit test for sibling_spacing"""
+
+        acceptf = "sibling_spacing.ged"
+        fail_file = FAIL_DIR + acceptf
+        pass_file = PASS_DIR + acceptf
+
+        if os.path.exists(pass_file):
+            individuals, families = parse_ged(pass_file)
+            self.assertTrue(sibling_spacing(individuals, families))
+        else:
+            print "!!sibling_spacing acceptance file not found"
+        if os.path.exists(fail_file):
+            individuals, families = parse_ged(fail_file)
+            self.assertFalse(sibling_spacing(individuals, families))
+        else:
+            print "!!sibling_spacing acceptance file not found"
 
     def test_fewer_than_fifteen_siblings(self):
         """ Unit test for fewer_than_fifteen_siblings"""

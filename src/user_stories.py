@@ -4,6 +4,7 @@
 """
 
 from datetime import datetime, timedelta
+from collections import Counter
 import re
 
 error_locations = []
@@ -35,6 +36,8 @@ def validation(individuals, families):
     no_bigamy(individuals, families)
 
     # Sprint 3
+    sibling_spacing(individuals, families)
+    multiple_births_less_5(individuals, families)
     fewer_than_fifteen_siblings(individuals, families)
     male_last_names(individuals, families)
     no_sibling_marriage(individuals, families)
@@ -484,6 +487,50 @@ def parents_not_too_old(individuals, families):
                     anom_location = [father.uid, child.uid]
                     report_anomaly(anom_type, anom_description, anom_location)
                     return_flag = False
+
+    return return_flag
+
+def sibling_spacing(individuals,families):
+    """ US13  -  Birth dates of siblings should be more than 8 months apart or
+        less than 2 days apart """
+    error_type = "US13"
+    return_flag = True
+
+    for family in families:
+        sibling_uids = family.children
+        siblings = list(x for x in individuals if x.uid in sibling_uids)
+
+        sib_birthdays = sorted(siblings, key=lambda ind: ind.birthdate, reverse=False)
+        i=0
+        count = len(sib_birthdays)
+        while i < count-1:
+            diff = sib_birthdays[i+1].birthdate - sib_birthdays[i].birthdate
+            if (diff > timedelta(days=2) and diff < timedelta(days=243)):
+                error_descrip = "Difference in sibling age impossible!"
+                error_location = [sib_birthdays[i+1].uid, sib_birthdays[i].uid]
+                report_error(error_type, error_descrip, error_location)
+                return_flag = False
+            i+=1
+        return return_flag
+
+def multiple_births_less_5(individuals,families):
+    """ US14  -  No more than five siblings should be born at the same time"""
+    error_type = "US14"
+    return_flag = True
+
+    for family in families:
+        sibling_uids = family.children
+        siblings = list(x for x in individuals if x.uid in sibling_uids)
+        sib_birthdays = []
+        for sibling in siblings:
+            sib_birthdays.append(sibling.birthdate)
+        result = Counter(sib_birthdays).most_common(1)
+        for (a,b) in result:
+            if b > 5:
+                error_descrip = "More than 5 siblings born at once"
+                error_location = [family.uid]
+                report_error(error_type, error_descrip, error_location)
+                return_flag = False
 
     return return_flag
 
