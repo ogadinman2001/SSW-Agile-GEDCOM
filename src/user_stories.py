@@ -630,12 +630,72 @@ def no_sibling_marriage(individuals, families):
         siblings = list(x for x in individuals if x.uid in sibling_uids)
 
         for sibling in siblings:
-            sib_fam = next((x for x in families if x.husband == sibling.uid), None)
+            sib_fam = next((x for x in families if x.husband == sibling.uid),
+                           None)
 
             if sib_fam and sib_fam.wife in sibling_uids:
                 anom_descrip = "Sibling is married to another sibling"
                 anom_location = [sibling.uid, sib_fam.wife]
                 report_anomaly(anom_type, anom_descrip, anom_location)
                 return_flag = False
+
+    return return_flag
+
+
+def unique_names_and_birth_dates(individuals, families):
+    """ US23 - No more than one individual with the same name and birth
+        date should appear in a GEDCOM file - ANOMALY """
+    anom_type = "US23"
+    return_flag = True
+
+    for individual in individuals:
+        for compare_indiv in individuals:
+            if individual.name and compare_indiv.name \
+                    and individual.name == compare_indiv.name:
+                # same name, compare birthdate
+                if compare_indiv.birthdate and individual.birthdate \
+                        and compare_indiv.birthdate and individual.birthdate:
+
+                    anom_descrip = "Two individuals share a name and birthdate"
+                    anom_location = [individual.uid, compare_indiv.uid]
+                    report_anomaly(anom_type, anom_descrip, anom_location)
+                    return_flag = False
+
+    return return_flag
+
+def unique_families_by_spouses(individuals, families):
+    """ US23 - No more than one family with the same spouses by name and the
+    same marriage date should appear in a GEDCOM file - ANOMALY """
+    anom_type = "US24"
+    return_flag = True
+
+    for family in families:
+        wife = next((x for x in individuals if x.uid == family.wife),
+                    None)
+        husband = next((x for x in individuals if x.uid == family.husband),
+                       None)
+        marriage = family.marriage
+
+        for compare_family in families:
+            c_wife = next((x for x in individuals if x.uid == family.wife),
+                          None)
+            c_husband = next((x for x in individuals if x.uid == family.husband),
+                             None)
+            c_marriage = family.marriage
+
+            if wife and husband and marriage\
+                and c_wife and c_husband and c_marriage\
+                and wife.name and husband.name\
+                and c_wife.name and c_husband.name\
+                and wife.name == c_wife.name\
+                and husband.name == c_husband.name\
+                    and c_marriage == marriage:
+
+                anom_descrip = "Two families share spouse names and marriage"\
+                    + " dates"
+                anom_location = [fam.uid, c_fam.uid]
+                report_anomaly(anom_type, anom_descrip, anom_location)
+                return_flag = False
+
 
     return return_flag
