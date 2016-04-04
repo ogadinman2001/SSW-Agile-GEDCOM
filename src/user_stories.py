@@ -663,6 +663,7 @@ def unique_names_and_birth_dates(individuals, families):
 
     return return_flag
 
+
 def unique_families_by_spouses(individuals, families):
     """ US23 - No more than one family with the same spouses by name and the
     same marriage date should appear in a GEDCOM file - ANOMALY """
@@ -696,6 +697,5 @@ def unique_families_by_spouses(individuals, families):
                 anom_location = [fam.uid, c_fam.uid]
                 report_anomaly(anom_type, anom_descrip, anom_location)
                 return_flag = False
-
 
     return return_flag
