@@ -698,5 +698,4 @@ def unique_families_by_spouses(individuals, families):
                 report_anomaly(anom_type, anom_descrip, anom_location)
                 return_flag = False
 
-
     return return_flag
