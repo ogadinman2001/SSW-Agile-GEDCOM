@@ -5,6 +5,6 @@ install:
   - pip install coveralls
   - pip install coverage       # Add me to install coverage.py
 script:
-  coverage  --include user_stories.py run run.py -t
+  coverage user_stories.py run run.py -t
 after_success:
   - coveralls
