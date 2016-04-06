@@ -92,6 +92,19 @@ python run.py --test
 | US10     | Marriage after 14         | bg    |
 | US11     | No bigamy                 | rh    |
 | US12     | Parents not too old       | rh    |
+| US13     | Siblings spacing          | mm    |
+| US14     | Multiple births less than 5       | mm    |
+| US15     | Fewer than 15 siblings    | bg    |
+| US16     | Male last names           | bg    |
+| US17     | No marriages to descendants       | rh    |
+| US18     | Siblings should not marry | rh    |
+| US19     | First cousins should not marry    | mm    |
+| US20     | Aunts and uncles          | mm    |
+| US21     | Correct gender for role   | bg
+| US22     | Unique IDs                | bg    |
+| US23     | Unique name and birth date| rh    |
+| US24     | Unique families by spouses| rh    |
+
 
 ## Contributors
 + Bryan Gardner
