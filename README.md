@@ -98,8 +98,8 @@ python run.py --test
 | US16     | Male last names           | bg    |
 | US17     | No marriages to descendants       | rh    |
 | US18     | Siblings should not marry | rh    |
-| US19     | First cousins should not marry    | mm    |
-| US20     | Aunts and uncles          | mm    |
+| US29     | List deceased individuals    | mm    |
+| US30     | List living married          | mm    |
 | US21     | Correct gender for role   | bg
 | US22     | Unique IDs                | bg    |
 | US23     | Unique name and birth date| rh    |
