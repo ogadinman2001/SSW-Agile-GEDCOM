@@ -47,6 +47,17 @@ def validation(individuals, families):
     correct_gender_for_role(individuals, families)
     unique_ids(individuals, families)
 
+    print "\n-------------------------------"
+    print "\nDeceased Individuals:"
+    for x in list_deceased(individuals, families):
+        print " ".join(x.name)
+    print "-------------------------------"
+
+    print "\nLiving Married Individuals:"
+    for x in list_living_married(individuals, families):
+        print " ".join(x.name)
+    print "-------------------------------"
+
 
 def report(rtype, number, description, location):
     """ Reports rtype to console """
@@ -727,7 +738,6 @@ def unique_names_and_birth_dates(individuals, families):
 
     return return_flag
 
-
 def unique_families_by_spouses(individuals, families):
     """ US24 - No more than one family with the same spouses by name and the
     same marriage date should appear in a GEDCOM file - ANOMALY """
@@ -763,3 +773,31 @@ def unique_families_by_spouses(individuals, families):
                 return_flag = False
 
     return return_flag
+
+def list_deceased(individuals, _):
+    """ US29 - List the deceased individuals """
+    deceased = []
+    for individual in individuals:
+        if individual.death is not None:
+            deceased.append(individual)
+    return deceased
+
+def list_living_married(individuals, families):
+    """ US30 - List the living married people """
+    living = []
+    for family in families:
+        husband_id = family.husband
+        wife_id = family.wife
+
+        husband = None
+        wife = None
+
+        for individual in individuals:
+            if individual.uid == husband_id and individual.death is None:
+                husband = individual
+            if individual.uid == wife_id and individual.death is None:
+                wife = individual
+        if wife is not None and husband is not None:
+            living.append(wife)
+            living.append(husband)
+    return living
