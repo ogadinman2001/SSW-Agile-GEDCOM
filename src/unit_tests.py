@@ -15,7 +15,8 @@ from user_stories import dates_before_current, birth_before_marriage, \
     birth_before_marriage_of_parents, multiple_births_less_5, \
     no_sibling_marriage, no_marriage_to_decendants, \
     fewer_than_fifteen_siblings, male_last_names, \
-    sibling_spacing
+    sibling_spacing, correct_gender_for_role, unique_ids, list_deceased, \
+    list_living_married
 
 FAIL_DIR = "acceptance_files/fail/"
 PASS_DIR = "acceptance_files/pass/"
@@ -298,6 +299,44 @@ class TestParser(unittest.TestCase):
         else:
             print "!!fewer_than_fifteen_siblings acceptance file not found"
 
+    def test_correct_gender_for_role(self):
+        """ Unit test for correct_gender_for_role """
+
+        acceptf = "correct_gender_for_role.ged"
+        fail_file = FAIL_DIR + acceptf
+        pass_file = PASS_DIR + acceptf
+
+        if os.path.exists(pass_file):
+            individuals, families = parse_ged(pass_file)
+            self.assertTrue(correct_gender_for_role(individuals, families))
+        else:
+            print "!!correct_gender_for_role acceptance file not found"
+
+        if os.path.exists(fail_file):
+            individuals, families = parse_ged(fail_file)
+            self.assertFalse(correct_gender_for_role(individuals, families))
+        else:
+            print "!!correct_gender_for_role acceptance file not found"
+
+    def test_unique_ids(self):
+        """ Unit test for unique_ids """
+
+        acceptf = "unique_ids.ged"
+        fail_file = FAIL_DIR + acceptf
+        pass_file = PASS_DIR + acceptf
+
+        if os.path.exists(pass_file):
+            individuals, families = parse_ged(pass_file)
+            self.assertTrue(unique_ids(individuals, families))
+        else:
+            print "!!unique_ids acceptance file not found"
+
+        if os.path.exists(fail_file):
+            individuals, families = parse_ged(fail_file)
+            self.assertFalse(unique_ids(individuals, families))
+        else:
+            print "!!unique_ids acceptance file not found"
+
     def test_male_last_names(self):
         """ Unit test for male_last_names """
 
@@ -352,3 +391,31 @@ class TestParser(unittest.TestCase):
             self.assertFalse(no_marriage_to_decendants(individuals, families))
         else:
             print "!!no_marriage_to_decendants file not found"
+
+    def test_list_deceased(self):
+        """ Unit test for no_marriage_to_decendants """
+
+        acceptf = "list_deceased.ged"
+        pass_file = PASS_DIR + acceptf
+
+        if os.path.exists(pass_file):
+            individuals, families = parse_ged(pass_file)
+            people = [x.uid for x in individuals]
+            function = [x.uid for x in list_deceased(individuals, families)]
+            self.assertEqual(people.sort(), function.sort())
+        else:
+            print "!!list_deceased acceptance file not found"
+
+    def test_list_living_married(self):
+        """ Unit test for no_marriage_to_decendants """
+
+        acceptf = "list_married.ged"
+        pass_file = PASS_DIR + acceptf
+
+        if os.path.exists(pass_file):
+            individuals, families = parse_ged(pass_file)
+            people = [x.uid for x in individuals]
+            function = [x.uid for x in list_living_married(individuals, families)]
+            self.assertEqual(people.sort(), function.sort())
+        else:
+            print "!!list_deceased acceptance file not found"

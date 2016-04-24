@@ -43,6 +43,21 @@ def validation(individuals, families):
     no_sibling_marriage(individuals, families)
     no_marriage_to_decendants(individuals, families)
 
+    # Sprint 4
+    correct_gender_for_role(individuals, families)
+    unique_ids(individuals, families)
+
+    print "\n-------------------------------"
+    print "\nDeceased Individuals:"
+    for x in list_deceased(individuals, families):
+        print " ".join(x.name)
+    print "-------------------------------"
+
+    print "\nLiving Married Individuals:"
+    for x in list_living_married(individuals, families):
+        print " ".join(x.name)
+    print "-------------------------------"
+
 
 def report(rtype, number, description, location):
     """ Reports rtype to console """
@@ -642,6 +657,66 @@ def no_sibling_marriage(individuals, families):
     return return_flag
 
 
+def correct_gender_for_role(individuals, families):
+    """ US21 - Correct Gender for Role; husband should be male, wife should
+    be female - ANOMALY """
+    anom_type = "US21"
+    return_flag = True
+
+    for family in families:
+        husband_id = family.husband
+        wife_id = family.wife
+
+        husband = None
+        wife = None
+
+        for individual in individuals:
+            if individual.uid == husband_id:
+                husband = individual
+            if individual.uid == wife_id:
+                wife = individual
+
+        if husband.sex is not "M":
+            anom_descrip = "Husband is not a male"
+            anom_location = [individual.uid, family.uid]
+            report_anomaly(anom_type, anom_descrip, anom_location)
+            return_flag = False
+
+        if wife.sex is not "F":
+            anom_descrip = "Wife is not a female"
+            anom_location = [individual.uid, family.uid]
+            report_anomaly(anom_type, anom_descrip, anom_location)
+            return_flag = False
+    return return_flag
+
+
+def unique_ids(individuals, families):
+    """ US22 - All individual IDs and Family IDs should be unique """
+    error_type = "US22"
+    return_flag = True
+
+    individual_list = []
+    family_list = []
+
+    for individual in individuals:
+        if individual.uid in individual_list:
+            error_descrip = "Individual ID already exists"
+            error_location = [individual.uid]
+            report_error(error_type, error_descrip, error_location)
+            return_flag = False
+        else:
+            individual_list.append(individual.uid)
+    for family in families:
+        if family.uid in family_list:
+            error_descrip = "Family ID already exists"
+            error_location = [family.uid]
+            report_error(error_type, error_descrip, error_location)
+            return_flag = False
+        else:
+            family_list.append(family.uid)
+    return return_flag
+
+
 def unique_names_and_birth_dates(individuals, families):
     """ US23 - No more than one individual with the same name and birth
         date should appear in a GEDCOM file - ANOMALY """
@@ -663,9 +738,8 @@ def unique_names_and_birth_dates(individuals, families):
 
     return return_flag
 
-
 def unique_families_by_spouses(individuals, families):
-    """ US23 - No more than one family with the same spouses by name and the
+    """ US24 - No more than one family with the same spouses by name and the
     same marriage date should appear in a GEDCOM file - ANOMALY """
     anom_type = "US24"
     return_flag = True
@@ -699,3 +773,31 @@ def unique_families_by_spouses(individuals, families):
                 return_flag = False
 
     return return_flag
+
+def list_deceased(individuals, _):
+    """ US29 - List the deceased individuals """
+    deceased = []
+    for individual in individuals:
+        if individual.death is not None:
+            deceased.append(individual)
+    return deceased
+
+def list_living_married(individuals, families):
+    """ US30 - List the living married people """
+    living = []
+    for family in families:
+        husband_id = family.husband
+        wife_id = family.wife
+
+        husband = None
+        wife = None
+
+        for individual in individuals:
+            if individual.uid == husband_id and individual.death is None:
+                husband = individual
+            if individual.uid == wife_id and individual.death is None:
+                wife = individual
+        if wife is not None and husband is not None:
+            living.append(wife)
+            living.append(husband)
+    return living
